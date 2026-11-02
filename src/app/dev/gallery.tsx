@@ -2,13 +2,23 @@ import { Redirect } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { Campfire } from '@/art/Campfire';
 import { Panda, type Expression, type PandaPose } from '@/art/panda/Panda';
+import type { Campfire as CampfireState } from '@/game/game';
 import { SchemeScope, themes, useTheme, type Theme } from '@/ui/tokens';
 
 const POSES: PandaPose[] = ['sleeping', 'packing', 'walking', 'flag', 'celebrating'];
 const EXPRESSIONS: Expression[] = ['content', 'excited', 'sleepy'];
 const SMALL_SIZES = [40, 64, 96];
 const TILE = 132;
+const FIRES: { label: string; fire: CampfireState }[] = [
+  { label: 'unlit', fire: { kind: 'unlit' } },
+  { label: '1 day', fire: { kind: 'burning', days: 1, litToday: true } },
+  { label: '3 days', fire: { kind: 'burning', days: 3, litToday: true } },
+  { label: '7 days', fire: { kind: 'burning', days: 7, litToday: true } },
+  { label: '14+ days', fire: { kind: 'burning', days: 14, litToday: true } },
+  { label: 'embers', fire: { kind: 'embers', lastStreak: 5 } },
+];
 
 export default function ArtGallery() {
   if (!__DEV__) return <Redirect href="/" />;
@@ -53,6 +63,14 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
         {EXPRESSIONS.map((expression) => (
           <Tile key={expression} label={expression} theme={theme}>
             <Panda pose="packing" expression={expression} size={TILE} animated={animated} />
+          </Tile>
+        ))}
+      </Section>
+
+      <Section title="Campfire" theme={theme}>
+        {FIRES.map(({ label, fire }) => (
+          <Tile key={label} label={label} theme={theme}>
+            <Campfire fire={fire} size={TILE} animated={animated} />
           </Tile>
         ))}
       </Section>

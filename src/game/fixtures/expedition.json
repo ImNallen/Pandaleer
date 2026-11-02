@@ -6,9 +6,9 @@
       "name": "Test Valley",
       "camps": [
         { "id": "a1", "name": "Camp A1", "stepsFromPrevious": 1000,
-          "discovery": { "id": "d-a1", "name": "Find A1", "icon": "teaLeaf", "description": "A1" } },
+          "discovery": { "id": "d-a1", "name": "Find A1", "found": "a1", "icon": "teaLeaf", "description": "A1" } },
         { "id": "a2", "name": "Camp A2", "stepsFromPrevious": 2000,
-          "discovery": { "id": "d-a2", "name": "Find A2", "icon": "teaLeaf", "description": "A2" } }
+          "discovery": { "id": "d-a2", "name": "Find A2", "found": "a2", "icon": "teaLeaf", "description": "A2" } }
       ]
     },
     {
@@ -16,7 +16,7 @@
       "name": "Test Ridge",
       "camps": [
         { "id": "b1", "name": "Camp B1", "stepsFromPrevious": 3000,
-          "discovery": { "id": "d-b1", "name": "Find B1", "icon": "teaLeaf", "description": "B1" } }
+          "discovery": { "id": "d-b1", "name": "Find B1", "found": "b1", "icon": "teaLeaf", "description": "B1" } }
       ]
     }
   ]

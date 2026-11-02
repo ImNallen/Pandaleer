@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { mockSteps } from '@/steps/mock';
+import { useCelebrations } from '@/state/celebrations';
 import { useDev } from '@/state/dev';
 import { useSettings } from '@/state/settings';
 import { stepSource } from '@/steps';
@@ -42,7 +43,13 @@ function MockStepsPanel() {
 
       <Section title="Reset">
         <Button label="Clear all mock steps" onPress={mockSteps.clear} />
-        <Button label="Restart expedition today" onPress={() => useSettings.getState().resetExpedition(today)} />
+        <Button
+          label="Restart expedition today"
+          onPress={() => {
+            useSettings.getState().resetExpedition(today);
+            useCelebrations.getState().reset();
+          }}
+        />
       </Section>
     </ScrollView>
   );

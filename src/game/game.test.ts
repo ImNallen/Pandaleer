@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 
+import { acknowledge, pendingCelebration, type CelebrationAcks } from './celebration.ts';
 import { parseLocalDate } from './date.ts';
 import { parseExpedition } from './expedition.ts';
 import { computeGame, withGoal, type GameInput, type GoalHistory } from './game.ts';
@@ -66,5 +67,51 @@ describe('parseLocalDate', () => {
   test('rejects impossible dates', () => {
     assert.throws(() => parseLocalDate('2026-02-30'));
     assert.throws(() => parseLocalDate('2026-3-1'));
+  });
+});
+
+describe('celebrations', () => {
+  const expedition = parseExpedition(readJson('./fixtures/expedition.json'));
+  const d = parseLocalDate;
+  const game = (today: string, dailyTotals: Record<string, number>) =>
+    computeGame(
+      { today: d(today), dailyTotals, goalHistory: [{ from: d('2026-03-10'), goal: 1000 }], expeditionStart: d('2026-03-10') },
+      expedition,
+    );
+
+  test('nothing is celebrated retroactively on the first run, except a goal met today', () => {
+    const fresh: CelebrationAcks = { campsSeen: null, goalCelebratedOn: null };
+    assert.equal(pendingCelebration(game('2026-03-11', { '2026-03-10': 3500 }), fresh), null);
+    assert.deepEqual(pendingCelebration(game('2026-03-10', { '2026-03-10': 3500 }), fresh), { discoveries: [], goal: true });
+  });
+
+  test('one big day celebrates every camp it passed, once', () => {
+    const before = game('2026-03-10', { '2026-03-10': 500 });
+    const acks = acknowledge(before, { campsSeen: null, goalCelebratedOn: null });
+    const after = game('2026-03-10', { '2026-03-10': 3500 });
+    assert.deepEqual(pendingCelebration(after, acks), { discoveries: ['d-a1', 'd-a2'], goal: true });
+    assert.equal(pendingCelebration(after, acknowledge(after, acks)), null);
+  });
+
+  test('the goal is celebrated again on a new day', () => {
+    const monday = game('2026-03-10', { '2026-03-10': 1000 });
+    const acks = acknowledge(monday, { campsSeen: 0, goalCelebratedOn: null });
+    const tuesday = game('2026-03-11', { '2026-03-10': 1000, '2026-03-11': 1000 });
+    assert.deepEqual(pendingCelebration(tuesday, acks), { discoveries: [], goal: true });
+  });
+
+  test('a date that moves back, like a westward flight, never repeats a goal celebration', () => {
+    const tuesday = game('2026-03-11', { '2026-03-10': 1000, '2026-03-11': 1000 });
+    const acks = acknowledge(tuesday, { campsSeen: 0, goalCelebratedOn: d('2026-03-10') });
+    const backOnMonday = game('2026-03-10', { '2026-03-10': 2000 });
+    assert.equal(pendingCelebration(backOnMonday, acks), null);
+    assert.equal(acknowledge(backOnMonday, acks).goalCelebratedOn, '2026-03-11');
+  });
+
+  test('losing camps after a time zone change never re-celebrates them', () => {
+    const acks: CelebrationAcks = { campsSeen: 2, goalCelebratedOn: d('2026-03-10') };
+    const shrunk = game('2026-03-10', { '2026-03-10': 1200 });
+    assert.equal(pendingCelebration(shrunk, acks), null);
+    assert.equal(acknowledge(shrunk, acks).campsSeen, 2);
   });
 });

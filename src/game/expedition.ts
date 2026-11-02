@@ -1,6 +1,8 @@
 export type Discovery = {
   readonly id: string;
   readonly name: string;
+  /** Completes "I found …", e.g. "a snow leopard track". */
+  readonly found: string;
   readonly icon: string;
   readonly description: string;
 };
@@ -51,6 +53,7 @@ export function parseExpedition(raw: unknown): Expedition {
         discovery: {
           id: unique(string(discovery.id, `${at}.discovery.id`), `${at}.discovery`),
           name: string(discovery.name, `${at}.discovery.name`),
+          found: string(discovery.found, `${at}.discovery.found`),
           icon: string(discovery.icon, `${at}.discovery.icon`),
           description: string(discovery.description, `${at}.discovery.description`),
         },
