@@ -32,9 +32,14 @@ export default function Today() {
         </>
       )}
       {__DEV__ && (
-        <Link href="/dev/steps" style={styles.link}>
-          Mock steps
-        </Link>
+        <>
+          <Link href="/dev/steps" style={styles.link}>
+            Mock steps
+          </Link>
+          <Link href="/dev/gallery" style={styles.link}>
+            Art Gallery
+          </Link>
+        </>
       )}
     </ScrollView>
   );
