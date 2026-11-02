@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "regions": [
+    {
+      "id": "himalayan-foothills",
+      "name": "The Himalayan Foothills",
+      "camps": [
+        {
+          "id": "bamboo-forest",
+          "name": "Bamboo Forest",
+          "stepsFromPrevious": 8000,
+          "discovery": {
+            "id": "bamboo-shoot",
+            "name": "Fresh Bamboo Shoot",
+            "icon": "bambooShoot",
+            "description": "Crunchy, sweet and still dewy. I packed three in my satchel for later. Okay, two. Okay, I ate them all."
+          }
+        },
+        {
+          "id": "mossy-glade",
+          "name": "Mossy Glade",
+          "stepsFromPrevious": 8500,
+          "discovery": {
+            "id": "rhododendron",
+            "name": "Rhododendron",
+            "icon": "rhododendron",
+            "description": "A whole hillside of pink and red blossoms! I tucked one behind my ear. It keeps falling into my hat."
+          }
+        },
+        {
+          "id": "river-crossing",
+          "name": "River Crossing",
+          "stepsFromPrevious": 9000,
+          "discovery": {
+            "id": "rope-bridge",
+            "name": "Rope Bridge",
+            "icon": "ropeBridge",
+            "description": "It wobbles. I wobble. We wobbled across together, and nobody looked down. Except me. Once."
+          }
+        },
+        {
+          "id": "tea-village",
+          "name": "Tea Village",
+          "stepsFromPrevious": 9500,
+          "discovery": {
+            "id": "tea-leaf",
+            "name": "Tea Leaf",
+            "icon": "teaLeaf",
+            "description": "The tea pickers showed me how to pluck two leaves and a bud. My paws are slow but very careful."
+          }
+        },
+        {
+          "id": "prayer-flag-hill",
+          "name": "Prayer Flag Hill",
+          "stepsFromPrevious": 10000,
+          "discovery": {
+            "id": "prayer-flags",
+            "name": "Prayer Flags",
+            "icon": "prayerFlags",
+            "description": "Blue, white, red, green and yellow, fluttering kind wishes out over the valley. I sent one for you."
+          }
+        },
+        {
+          "id": "langur-woods",
+          "name": "Langur Woods",
+          "stepsFromPrevious": 10500,
+          "discovery": {
+            "id": "golden-langur",
+            "name": "Golden Langur",
+            "icon": "goldenLangur",
+            "description": "A monkey with fur like sunset honey watched me from a branch. I waved. It did not wave back. Rude, but beautiful."
+          }
+        },
+        {
+          "id": "yak-meadow",
+          "name": "Yak Meadow",
+          "stepsFromPrevious": 11000,
+          "discovery": {
+            "id": "yak",
+            "name": "Yak",
+            "icon": "yak",
+            "description": "Big, shaggy and very calm. It let me rest in its shadow while it chewed. Best nap of the trip."
+          }
+        },
+        {
+          "id": "hot-spring-hollow",
+          "name": "Hot Spring Hollow",
+          "stepsFromPrevious": 11500,
+          "discovery": {
+            "id": "hot-spring",
+            "name": "Hot Spring",
+            "icon": "hotSpring",
+            "description": "Warm water bubbling out of the rocks! I soaked my tired paws until my tail went all fluffy with steam."
+          }
+        },
+        {
+          "id": "mountain-pass",
+          "name": "Mountain Pass",
+          "stepsFromPrevious": 12000,
+          "discovery": {
+            "id": "stone-cairn",
+            "name": "Stone Cairn",
+            "icon": "stoneCairn",
+            "description": "Travelers stack stones here to say they made it. I added a tiny one at the top. It is my best work."
+          }
+        },
+        {
+          "id": "pine-ridge",
+          "name": "Pine Ridge",
+          "stepsFromPrevious": 12500,
+          "discovery": {
+            "id": "himalayan-monal",
+            "name": "Himalayan Monal",
+            "icon": "himalayanMonal",
+            "description": "A bird shimmering in every color at once, like someone spilled a rainbow on a pheasant. I gasped out loud."
+          }
+        },
+        {
+          "id": "snowy-ridge",
+          "name": "Snowy Ridge",
+          "stepsFromPrevious": 13000,
+          "discovery": {
+            "id": "snow-leopard-track",
+            "name": "Snow Leopard Track",
+            "icon": "snowLeopardTrack",
+            "description": "Paw prints bigger than my whole face, pressed into fresh snow. I followed them for a bit. Then, very politely, I did not."
+          }
+        },
+        {
+          "id": "summit-lookout",
+          "name": "Summit Lookout",
+          "stepsFromPrevious": 13500,
+          "discovery": {
+            "id": "blue-poppy",
+            "name": "Himalayan Blue Poppy",
+            "icon": "bluePoppy",
+            "description": "Up where hardly anything grows, a poppy as blue as the sky. We made it to the top together. Thank you for every step."
+          }
+        }
+      ]
+    }
+  ]
+}
