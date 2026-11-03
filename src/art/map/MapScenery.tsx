@@ -1,37 +1,29 @@
 import { memo } from 'react';
 import { Circle, Defs, Ellipse, G, LinearGradient, Path, Rect, Stop, Svg } from 'react-native-svg';
 
-import type { MapLayout, ScatterType, SceneryItem } from '@/map/layout';
+import { useSvgId } from '@/art/motion';
+import type { ScatterType, SceneryItem, WeekLayout } from '@/map/layout';
 import { useArt, useTheme, type ArtPalette } from '@/ui/tokens';
 
-type Props = { layout: MapLayout; walked: number };
-
-/** The whole region as one static drawing; only the walked trail changes with progress. */
-export const MapScenery = memo(function MapScenery({ layout, walked }: Props) {
+/** One week of trail as a static drawing. */
+export const MapScenery = memo(function MapScenery({ layout }: { layout: WeekLayout }) {
   const palette = useArt();
   const theme = useTheme();
+  const groundId = useSvgId('ground');
   const { width, height } = layout;
   return (
-    <Svg width={width} height={height} accessible={false}>
+    <Svg width={width} height={height} accessible={false} style={{ position: 'absolute' }}>
       <Defs>
-        <LinearGradient id="ground" x1="0" y1="0" x2="0" y2={height} gradientUnits="userSpaceOnUse">
+        <LinearGradient id={groundId} x1="0" y1="0" x2="0" y2={height} gradientUnits="userSpaceOnUse">
           {layout.ground.map((band, i) => (
             <Stop key={i} offset={band.y / height} stopColor={palette[band.color]} />
           ))}
         </LinearGradient>
       </Defs>
-      <Rect x={0} y={0} width={width} height={height} fill="url(#ground)" />
+      <Rect x={0} y={0} width={width} height={height} fill={`url(#${groundId})`} />
       <SceneryLayer items={layout.scenery} palette={palette} />
       <Path d={layout.trailPath} stroke={palette.trail} strokeWidth={20} strokeLinecap="round" fill="none" />
       <Path d={layout.trailPath} stroke={palette.khakiDeep} strokeWidth={3.5} strokeDasharray="1 11" strokeLinecap="round" fill="none" />
-      <Path
-        d={layout.trailPath}
-        stroke={palette.orange}
-        strokeWidth={6}
-        strokeLinecap="round"
-        strokeDasharray={`${walked} ${layout.trailLength + 100}`}
-        fill="none"
-      />
       {theme.scheme === 'dark' && <Rect x={0} y={0} width={width} height={height} fill={palette.night} opacity={0.42} />}
     </Svg>
   );

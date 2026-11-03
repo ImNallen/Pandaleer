@@ -1,11 +1,12 @@
+import { addDays, epochDay, weekStart, type LocalDate } from '../game/date.ts';
+import type { Day } from '../game/game.ts';
+
 export type Ground = 'groundBamboo' | 'groundMeadow' | 'groundForest' | 'groundRock' | 'groundSnow';
 export type ScatterType = 'bamboo' | 'bush' | 'flowers' | 'pine' | 'rock' | 'teaBush' | 'snowPine' | 'snowRock';
 type Feature = 'river' | 'terraces' | 'prayerFlags' | 'pools' | 'snowfall';
-
 type TerrainSpec = { ground: Ground; scatter: readonly ScatterType[]; feature?: Feature };
 
-/** Content picks a terrain per camp; this registry turns it into scenery for the leg that leads to that camp. */
-export const TERRAINS = {
+const TERRAINS = {
   bamboo: { ground: 'groundBamboo', scatter: ['bamboo', 'bamboo', 'bush'] },
   meadow: { ground: 'groundMeadow', scatter: ['flowers', 'bush', 'flowers', 'pine'] },
   river: { ground: 'groundMeadow', scatter: ['bush', 'rock', 'flowers'], feature: 'river' },
@@ -17,14 +18,11 @@ export const TERRAINS = {
   snow: { ground: 'groundSnow', scatter: ['snowPine', 'snowPine', 'snowRock'], feature: 'snowfall' },
 } as const satisfies Record<string, TerrainSpec>;
 
-export type Terrain = keyof typeof TERRAINS;
-
-export const isTerrain = (value: string): value is Terrain => value in TERRAINS;
+/** One biome per week, in this order, so the trail travels somewhere new every Monday. */
+const WEEKLY_TERRAINS: readonly (keyof typeof TERRAINS)[] = ['bamboo', 'meadow', 'river', 'tea', 'flags', 'forest', 'hotspring', 'pass', 'snow'];
 
 export type Point = { x: number; y: number };
 type Bezier = readonly [Point, Point, Point, Point];
-
-export type MapStop = Point & { campId: string | null; labelSide: -1 | 1 };
 
 export type SceneryItem =
   | { kind: 'mountain'; x: number; y: number; width: number; height: number; snowy: boolean; far: boolean }
@@ -36,149 +34,206 @@ export type SceneryItem =
   | { kind: 'pools'; x: number; y: number }
   | { kind: 'snowflake'; x: number; y: number; r: number };
 
-export type MapLayout = {
+export type Week = {
+  monday: LocalDate;
+  /** Oldest first; only days on the journey, so the first and current weeks can be partial. */
+  days: readonly Day[];
+  /** The journey begins inside this week, so the trail starts at a trailhead instead of the week before. */
+  startsJourney: boolean;
+  /** This week holds today, so the trail ends where the panda is instead of at Sunday's camp. */
+  current: boolean;
+};
+
+export type DayStop = Point & { day: Day; labelSide: -1 | 1 };
+
+export type WeekLayout = {
   width: number;
   height: number;
-  /** stops[0] is the trailhead; stops[i + 1] is the i-th camp. */
-  stops: MapStop[];
-  segments: Bezier[];
-  segmentLengths: number[];
+  /** One per day, oldest first. The last stop of the current week is where the panda stands. */
+  stops: DayStop[];
   trailPath: string;
-  trailLength: number;
-  /** Ground colour at the middle of each leg, top to bottom, for a vertical gradient. */
+  trailhead: Point | null;
+  banner: Point;
+  /** Ground colours top to bottom, for a vertical gradient that blends into last week's biome. */
   ground: { y: number; color: Ground }[];
   scenery: SceneryItem[];
 };
 
-export type MapCamp = { campId: string; terrain: Terrain; stepsFromPrevious: number };
+const PX_PER_STEP = 0.028;
+const LEG = { min: 64, max: 300 };
+const EDGE = 44;
+const TRAILHEAD_SPACE = 64;
+/** Room between a week's start and its Monday camp for the week banner. */
+const BANNER_SPACE = 48;
+/** Room above the panda for the screen's floating header. */
+const CURRENT_TOP_SPACE = 250;
+const TRAIL_CLEARANCE = 36;
+const LABEL = { width: 150, height: 50, gap: 26 };
 
-const PX_PER_STEP = 0.022;
-const TOP = 190;
-const BOTTOM = 170;
-const TRAIL_CLEARANCE = 38;
-const LABEL = { width: 150, height: 52, gap: 24 };
+export const legLength = (steps: number) => Math.min(LEG.max, Math.max(LEG.min, steps * PX_PER_STEP));
 
-export function layoutMap(camps: readonly MapCamp[], width: number, seed: number): MapLayout {
-  const random = mulberry32(seed);
-  const between = (min: number, max: number) => min + random() * (max - min);
+/** Newest week first. Every week runs Monday to Sunday. */
+export function groupWeeks(days: readonly Day[]): Week[] {
+  const weeks: Week[] = [];
+  for (const day of days) {
+    const monday = weekStart(day.date);
+    const week = weeks.at(-1);
+    if (week?.monday === monday) (week.days as Day[]).push(day);
+    else weeks.push({ monday, days: [day], startsJourney: weeks.length === 0, current: false });
+  }
+  const latest = weeks.at(-1);
+  if (latest) latest.current = true;
+  return weeks.reverse();
+}
 
-  const trailHeight = camps.reduce((sum, camp) => sum + camp.stepsFromPrevious, 0) * PX_PER_STEP;
-  const height = Math.round(TOP + trailHeight + BOTTOM);
+export function layoutWeek(week: Week, width: number): WeekLayout {
+  const legs = week.days.map((day) => legLength(day.steps));
+  const total = legs.reduce((a, b) => a + b, 0);
+  const bottomSpace = week.startsJourney ? TRAILHEAD_SPACE : BANNER_SPACE - EDGE;
+  const topSpace = week.current ? CURRENT_TOP_SPACE : EDGE;
+  const height = Math.round(bottomSpace + total + topSpace);
 
-  let y = height - BOTTOM;
-  const stops: MapStop[] = [{ x: width / 2, y, campId: null, labelSide: 1 }];
-  camps.forEach((camp, i) => {
-    y -= camp.stepsFromPrevious * PX_PER_STEP;
-    const side = i % 2 === 0 ? -1 : 1;
-    const x = clamp(width / 2 + side * width * between(0.1, 0.22), 64, width - 64);
-    stops.push({ x, y, campId: camp.campId, labelSide: side === -1 ? 1 : -1 });
+  const entryX = boundaryX(week.monday, width);
+  const exitX = boundaryX(addDays(week.monday, 7), width);
+  const start: Point = week.startsJourney ? { x: width / 2, y: height - TRAILHEAD_SPACE } : { x: entryX, y: height + EDGE };
+
+  let y = week.startsJourney ? start.y : start.y - BANNER_SPACE;
+  const stops: DayStop[] = week.days.map((day, i) => {
+    y -= legs[i];
+    const isSunday = !week.current && i === week.days.length - 1;
+    const x = isSunday ? exitX : dayX(day.date, width);
+    return { x, y, day, labelSide: x < width / 2 ? 1 : -1 };
   });
 
-  const segments = stops.slice(0, -1).map((stop, i): Bezier => catmullRom(stops[i - 1] ?? stop, stop, stops[i + 1], stops[i + 2] ?? stops[i + 1]));
-  const segmentLengths = segments.map((segment) => arcLength(segment, 1));
+  const path: Point[] = [start, ...stops];
+  if (!week.startsJourney) path[0] = { x: entryX, y: height };
+  if (!week.current) path.push({ x: exitX, y: 0 });
+  const below = { x: path[0].x, y: path[0].y + EDGE };
+  const last = path.at(-1)!;
+  const above = { x: last.x, y: last.y - EDGE };
+  const knots = [below, ...path, above];
+  const segments = path.slice(0, -1).map((_, i): Bezier => catmullRom(knots[i], knots[i + 1], knots[i + 2], knots[i + 3]));
   const trailPath =
-    `M ${fmt(stops[0].x)} ${fmt(stops[0].y)} ` +
+    `M ${fmt(path[0].x)} ${fmt(path[0].y)} ` +
     segments.map(([, c1, c2, end]) => `C ${fmt(c1.x)} ${fmt(c1.y)} ${fmt(c2.x)} ${fmt(c2.y)} ${fmt(end.x)} ${fmt(end.y)}`).join(' ');
 
-  const trailSamples = segments.flatMap((segment) => Array.from({ length: 24 }, (_, i) => cubic(segment, i / 23)));
-  const labelBoxes = stops.slice(1).map(labelBox);
-  const isClear = (p: Point, margin: number) =>
-    trailSamples.every((s) => Math.hypot(s.x - p.x, s.y - p.y) > TRAIL_CLEARANCE + margin) &&
-    labelBoxes.every((box) => p.x < box.left - margin || p.x > box.right + margin || p.y < box.top - margin || p.y > box.bottom + margin) &&
-    stops.every((stop) => Math.hypot(stop.x - p.x, stop.y - p.y) > 44 + margin);
-  const trailXAt = (yy: number) => trailSamples.reduce((best, s) => (Math.abs(s.y - yy) < Math.abs(best.y - yy) ? s : best)).x;
-
-  const scenery: SceneryItem[] = [];
-  const ground: MapLayout['ground'] = [];
-
-  camps.forEach((camp, i) => {
-    const spec: TerrainSpec = TERRAINS[camp.terrain];
-    const from = stops[i];
-    const to = stops[i + 1];
-    const legTop = to.y;
-    const legBottom = i === 0 ? height : from.y;
-    const altitude = 1 - (to.y - TOP) / trailHeight;
-    ground.push({ y: (legTop + from.y) / 2, color: spec.ground });
-
-    for (const edge of [-1, 1] as const) {
-      const mountainWidth = between(120, 180);
-      scenery.push({
-        kind: 'mountain',
-        x: edge === -1 ? between(-40, 10) : width - between(-40, 10),
-        y: between(legTop + 10, legBottom - 10),
-        width: mountainWidth,
-        height: between(70, 110) + altitude * 50,
-        snowy: altitude > 0.45,
-        far: random() < 0.5,
-      });
-    }
-
-    const count = Math.round((legBottom - legTop) / 11);
-    for (let n = 0; n < count; n++) {
-      const p = { x: between(14, width - 14), y: between(legTop, legBottom) };
-      if (!isClear(p, 0)) continue;
-      scenery.push({
-        kind: 'scatter',
-        type: spec.scatter[Math.floor(random() * spec.scatter.length)],
-        x: p.x,
-        y: p.y,
-        scale: between(0.8, 1.2),
-        flip: random() < 0.5,
-      });
-    }
-
-    const awayFromLabel = to.x - to.labelSide * 92;
-    switch (spec.feature) {
-      case 'river': {
-        const riverY = (to.y + from.y) / 2 + 10;
-        scenery.push({ kind: 'river', d: wavePath(riverY, width, between(10, 18)), bridge: { x: trailXAt(riverY), y: riverY } });
-        break;
-      }
-      case 'terraces':
-        scenery.push({ kind: 'terraces', x: clamp(awayFromLabel, 50, width - 50), y: to.y + 40 });
-        break;
-      case 'prayerFlags':
-        scenery.push({ kind: 'prayerFlags', from: { x: to.x - 70, y: to.y - 58 }, to: { x: to.x + 70, y: to.y - 70 } });
-        break;
-      case 'pools':
-        scenery.push({ kind: 'pools', x: clamp(awayFromLabel, 50, width - 50), y: to.y + 46 });
-        break;
-      case 'snowfall':
-        for (let n = 0; n < 18; n++) {
-          scenery.push({ kind: 'snowflake', x: between(6, width - 6), y: between(legTop - 40, legBottom), r: between(1.5, 3) });
-        }
-        break;
-    }
-  });
-
-  for (let mistY = height - 420; mistY > TOP; mistY -= between(480, 620)) {
-    scenery.push({ kind: 'mist', x: between(width * 0.2, width * 0.8), y: mistY, width: between(width * 0.7, width * 1.1) });
-  }
+  const terrain = terrainFor(week.monday);
+  const scenery = sceneryFor(week, stops, legs, segments, width, height, terrain);
 
   return {
     width,
     height,
     stops,
-    segments,
-    segmentLengths,
     trailPath,
-    trailLength: segmentLengths.reduce((a, b) => a + b, 0),
-    ground: ground.reverse(),
+    trailhead: week.startsJourney ? start : null,
+    banner: { x: path[0].x, y: height - 20 },
+    ground: [
+      { y: 0, color: TERRAINS[terrain].ground },
+      { y: height * 0.75, color: TERRAINS[terrain].ground },
+      { y: height, color: TERRAINS[week.startsJourney ? terrain : terrainFor(addDays(week.monday, -7))].ground },
+    ],
     scenery: scenery.sort((a, b) => drawOrder(a) - drawOrder(b)),
   };
 }
 
-/** Where the panda stands, and how much trail is behind it, `t` of the way along leg `segment`. */
-export function trailPosition(layout: MapLayout, segment: number, t: number): { point: Point; walked: number } {
-  const index = Math.min(segment, layout.segments.length - 1);
-  const along = segment >= layout.segments.length ? 1 : clamp(t, 0, 1);
-  const walked = layout.segmentLengths.slice(0, index).reduce((a, b) => a + b, 0) + arcLength(layout.segments[index], along);
-  return { point: cubic(layout.segments[index], along), walked };
+function sceneryFor(
+  week: Week,
+  stops: DayStop[],
+  legs: number[],
+  segments: Bezier[],
+  width: number,
+  height: number,
+  terrain: keyof typeof TERRAINS,
+): SceneryItem[] {
+  const spec: TerrainSpec = TERRAINS[terrain];
+  const samples = segments.flatMap((segment) => Array.from({ length: 20 }, (_, i) => cubic(segment, i / 19)));
+  const boxes = stops.map(labelBox);
+  const isClear = (p: Point) =>
+    samples.every((s) => Math.hypot(s.x - p.x, s.y - p.y) > TRAIL_CLEARANCE) &&
+    boxes.every((box) => p.x < box.left || p.x > box.right || p.y < box.top || p.y > box.bottom) &&
+    stops.every((stop) => Math.hypot(stop.x - p.x, stop.y - p.y) > 44);
+  const trailXAt = (y: number) => samples.reduce((best, s) => (Math.abs(s.y - y) < Math.abs(best.y - y) ? s : best)).x;
+
+  const scenery: SceneryItem[] = [];
+  const featureDay = Math.floor((stops.length - 1) / 2);
+
+  stops.forEach((stop, i) => {
+    // Seeded per day and placed relative to the day's own leg, so finished days never change and today's leg only stretches.
+    const random = mulberry32(epochDay(stop.day.date) * 2654435761);
+    const between = (min: number, max: number) => min + random() * (max - min);
+    const legTop = stop.y;
+    const legBottom = Math.min(height, stop.y + legs[i]);
+    const span = legBottom - legTop;
+
+    const edge = random() < 0.5 ? -1 : 1;
+    scenery.push({
+      kind: 'mountain',
+      x: edge === -1 ? between(-40, 10) : width - between(-40, 10),
+      y: legTop + span * between(0.2, 0.9),
+      width: between(120, 180),
+      height: between(70, 120),
+      snowy: terrain === 'snow' || terrain === 'pass',
+      far: random() < 0.5,
+    });
+
+    for (let n = Math.round(span / 12); n > 0; n--) {
+      const p = { x: between(14, width - 14), y: legTop + span * random() };
+      const type = spec.scatter[Math.floor(random() * spec.scatter.length)];
+      const scale = between(0.8, 1.2);
+      const flip = random() < 0.5;
+      if (isClear(p)) scenery.push({ kind: 'scatter', type, x: p.x, y: p.y, scale, flip });
+    }
+
+    if (spec.feature === 'snowfall') {
+      for (let n = Math.round(span / 18); n > 0; n--) {
+        scenery.push({ kind: 'snowflake', x: between(6, width - 6), y: legTop + span * random(), r: between(1.5, 3) });
+      }
+    }
+
+    if (i !== featureDay) return;
+    const away = Math.min(width - 50, Math.max(50, stop.x - stop.labelSide * 96));
+    switch (spec.feature) {
+      case 'river': {
+        const riverY = legTop + span * 0.55;
+        scenery.push({ kind: 'river', d: wavePath(riverY, width, between(10, 18)), bridge: { x: trailXAt(riverY), y: riverY } });
+        break;
+      }
+      case 'terraces':
+        scenery.push({ kind: 'terraces', x: away, y: stop.y + 30 });
+        break;
+      case 'prayerFlags':
+        scenery.push({ kind: 'prayerFlags', from: { x: stop.x - 70, y: stop.y - 58 }, to: { x: stop.x + 70, y: stop.y - 70 } });
+        break;
+      case 'pools':
+        scenery.push({ kind: 'pools', x: away, y: stop.y + 40 });
+        break;
+    }
+  });
+
+  const mist = mulberry32(epochDay(week.monday) * 40503);
+  scenery.push({ kind: 'mist', x: width * (0.25 + mist() * 0.5), y: height * (0.3 + mist() * 0.4), width: width * (0.7 + mist() * 0.4) });
+  return scenery;
 }
 
-function labelBox(stop: MapStop) {
+function terrainFor(monday: LocalDate): keyof typeof TERRAINS {
+  const week = Math.floor(epochDay(monday) / 7);
+  return WEEKLY_TERRAINS[((week % WEEKLY_TERRAINS.length) + WEEKLY_TERRAINS.length) % WEEKLY_TERRAINS.length];
+}
+
+/** Where the trail crosses from one week into the next; depends only on that Monday, so neighbouring weeks always meet. */
+export function boundaryX(monday: LocalDate, width: number): number {
+  return width / 2 + (mulberry32(epochDay(monday) * 97)() - 0.5) * width * 0.32;
+}
+
+function dayX(date: LocalDate, width: number): number {
+  const side = epochDay(date) % 2 === 0 ? -1 : 1;
+  return width / 2 + side * width * (0.08 + mulberry32(epochDay(date) * 131)() * 0.14);
+}
+
+function labelBox(stop: DayStop) {
+  const margin = 14;
   const left = stop.labelSide === 1 ? stop.x + LABEL.gap : stop.x - LABEL.gap - LABEL.width;
-  return { left, right: left + LABEL.width, top: stop.y - LABEL.height / 2, bottom: stop.y + LABEL.height / 2 };
+  return { left: left - margin, right: left + LABEL.width + margin, top: stop.y - LABEL.height / 2 - margin, bottom: stop.y + LABEL.height / 2 + margin };
 }
 
 function drawOrder(item: SceneryItem): number {
@@ -217,18 +272,6 @@ function cubic([a, b, c, d]: Bezier, t: number): Point {
   };
 }
 
-function arcLength(segment: Bezier, until: number): number {
-  const steps = Math.max(1, Math.ceil(32 * until));
-  let length = 0;
-  let previous = cubic(segment, 0);
-  for (let i = 1; i <= steps; i++) {
-    const next = cubic(segment, (until * i) / steps);
-    length += Math.hypot(next.x - previous.x, next.y - previous.y);
-    previous = next;
-  }
-  return length;
-}
-
 function wavePath(y: number, width: number, amplitude: number): string {
   const step = width / 3;
   let d = `M -20 ${fmt(y)}`;
@@ -251,5 +294,4 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const fmt = (n: number) => n.toFixed(1);

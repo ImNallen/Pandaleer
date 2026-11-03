@@ -2,6 +2,7 @@ import { Redirect } from 'expo-router';
 import { useSyncExternalStore } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { addDays, type LocalDate } from '@/game/date';
 import { mockSteps } from '@/steps/mock';
 import { useDev } from '@/state/dev';
 import { useSettings } from '@/state/settings';
@@ -42,13 +43,18 @@ function MockStepsPanel() {
 
       <Section title="Reset">
         <Button label="Clear all mock steps" onPress={mockSteps.clear} />
-        <Button
-          label="Restart journey today"
-          onPress={() => useSettings.getState().restartJourney(today)}
-        />
+        <Button label="Demo: 3 weeks of walks" onPress={() => demoHistory(today)} />
+        <Button label="Restart journey today" onPress={() => useSettings.getState().restartJourney(today)} />
       </Section>
     </ScrollView>
   );
+}
+
+const DEMO_STEPS = [4200, 7100, 0, 9300, 6500, 3100, 12400, 8000, 5200, 0, 6100, 7400, 2600, 6800, 15000, 6200, 4800, 7600, 6900, 0, 8800];
+
+function demoHistory(today: LocalDate) {
+  DEMO_STEPS.forEach((steps, i) => mockSteps.set(addDays(today, i - DEMO_STEPS.length), steps));
+  useSettings.setState({ journeyStart: addDays(today, -DEMO_STEPS.length) });
 }
 
 function useMockStepsOn(date: ReturnType<typeof useToday>): number {
