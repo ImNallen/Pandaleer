@@ -2,26 +2,28 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
+import { StyleSheet, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Confetti } from '@/components/Confetti';
-import { HourlyChart } from '@/components/HourlyChart';
+import { DayCard } from '@/components/DayCard';
 import { PandaFill } from '@/components/PandaFill';
 import { StepCount } from '@/components/StepCount';
-import { WeekTracker } from '@/components/WeekTracker';
+import { WeekCard } from '@/components/WeekCard';
 import { shouldCelebrateGoal } from '@/game/celebration';
 import type { GameState } from '@/game/game';
 import { useCelebrations } from '@/state/celebrations';
 import { DEFAULT_GOAL, useSettings } from '@/state/settings';
 import { useGame, useHourlySteps } from '@/state/useGame';
 import { useToday } from '@/time/today';
+import { PressableScale } from '@/ui/PressableScale';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
-/** The hourly chart only earns its place when the panda still gets this much room. */
+/** The day card only earns its place when the panda still gets this much room. */
 const ROOMY_HEIGHT = 800;
+const enter = (order: number) => FadeInDown.delay(order * 90).duration(500).springify().damping(18);
 const CELEBRATION_MS = 3500;
 
 export default function Home() {
@@ -44,40 +46,41 @@ function HomeContent({ game }: { game: GameState }) {
   const pandaSize = Math.min(stage.width, stage.height);
 
   return (
-    <View style={[styles.flex, styles.screen, { paddingTop: insets.top + 6, paddingBottom: insets.bottom + 12 }]}>
-      <Header game={game} />
-      <View style={styles.count}>
+    <View style={[styles.flex, styles.screen, { paddingTop: insets.top + 4, paddingBottom: insets.bottom + 8 }]}>
+      <Animated.View entering={enter(0)}>
+        <Header streak={game.streak} />
+      </Animated.View>
+      <Animated.View entering={enter(1)} style={styles.count}>
         <StepCount steps={game.today.steps} goal={game.today.goal} />
-      </View>
-      <View style={styles.stage} onLayout={(event: LayoutChangeEvent) => setStage(event.nativeEvent.layout)}>
+      </Animated.View>
+      <Animated.View entering={FadeIn.delay(200).duration(700)} style={styles.stage} onLayout={(event: LayoutChangeEvent) => setStage(event.nativeEvent.layout)}>
         {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} celebrating={celebrating} />}
-      </View>
-      <WeekTracker week={game.week} />
+      </Animated.View>
+      <Animated.View entering={enter(3)}>
+        <WeekCard week={game.week} />
+      </Animated.View>
       {hours && screenHeight >= ROOMY_HEIGHT && (
-        <View style={styles.chart}>
-          <HourlyChart hours={hours} currentHour={new Date().getHours()} />
-        </View>
+        <Animated.View entering={enter(4)} style={styles.dayCard}>
+          <DayCard hours={hours} currentHour={new Date().getHours()} />
+        </Animated.View>
       )}
       {celebrating && <Confetti />}
     </View>
   );
 }
 
-function Header({ game }: { game: GameState }) {
+function Header({ streak }: { streak: number }) {
   const theme = useTheme();
   return (
     <View style={styles.header}>
-      <Text style={styles.date} accessibilityRole="header" numberOfLines={1} maxFontSizeMultiplier={1.4}>
-        {formatDate(game.today.date)}
-      </Text>
-      <StreakBadge streak={game.streak} />
-      <Pressable
+      <StreakBadge streak={streak} />
+      <PressableScale
         accessibilityRole="button"
         accessibilityLabel="Settings"
         onPress={() => router.push('/settings')}
-        style={({ pressed }) => [styles.circle, { backgroundColor: theme.fill, transform: [{ scale: pressed ? 0.92 : 1 }] }]}>
-        <SymbolView name="gearshape.fill" size={20} tintColor={theme.textMuted} />
-      </Pressable>
+        style={[styles.settings, { backgroundColor: theme.fill }]}>
+        <SymbolView name="gearshape.fill" size={16} tintColor={theme.textMuted} />
+      </PressableScale>
     </View>
   );
 }
@@ -95,7 +98,7 @@ function StreakBadge({ streak }: { streak: number }) {
     <Animated.View
       accessible
       accessibilityLabel={streak === 1 ? '1-day streak' : `${streak}-day streak`}
-      style={[styles.circle, { backgroundColor: theme.blue }, pop]}>
+      style={[styles.streakBadge, { backgroundColor: theme.blue, borderColor: theme.background, shadowColor: theme.blue }, pop]}>
       <Text style={styles.streak} maxFontSizeMultiplier={1.2}>
         {streak}
       </Text>
@@ -123,19 +126,24 @@ function useGoalCelebration(game: GameState): boolean {
   return celebrating;
 }
 
-function formatDate(date: string): string {
-  const [year, month, day] = date.split('-').map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-}
-
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  screen: { paddingHorizontal: 22 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 48 },
-  date: { flex: 1, fontSize: 17, fontWeight: '700' },
-  circle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  screen: { paddingHorizontal: 20 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 48 },
+  streakBadge: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+  },
   streak: { color: '#FFFFFF', fontSize: 17, fontWeight: '800' },
-  count: { marginTop: 18 },
+  settings: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  count: { marginTop: -2 },
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  chart: { marginTop: 22 },
+  dayCard: { marginTop: 12 },
 });

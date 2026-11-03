@@ -49,6 +49,15 @@ export type Theme = {
   /** A met goal: week circles and chart bars. */
   orange: string;
   orangeSoft: string;
+  /** Today's step count. Bright but still 3:1 on the background for large text. */
+  sky: string;
+  /** The week card and its empty day capsules. */
+  weekCard: string;
+  weekTrack: string;
+  /** The day-by-hour card and its bars. */
+  dayCard: string;
+  green: string;
+  greenSoft: string;
   /** The unfilled panda, with a second tone where the art uses its deeper colours. */
   silhouette: string;
   silhouetteDeep: string;
@@ -67,6 +76,12 @@ export const themes: Record<Theme['scheme'], Theme> = {
     blue: '#2E7BFF',
     orange: '#FF6A1F',
     orangeSoft: '#FFD8C2',
+    sky: '#1E90FF',
+    weekCard: '#FFF4EC',
+    weekTrack: '#FFE3D1',
+    dayCard: '#EAF8EE',
+    green: '#2DBE60',
+    greenSoft: '#C9EED5',
     silhouette: '#EEEEF2',
     silhouetteDeep: '#E0E0E7',
     shadow: '#1B1B3A',
@@ -82,6 +97,12 @@ export const themes: Record<Theme['scheme'], Theme> = {
     blue: '#4C8DFF',
     orange: '#FF7A33',
     orangeSoft: '#5A2E1A',
+    sky: '#5AB0FF',
+    weekCard: '#211915',
+    weekTrack: '#3A2A20',
+    dayCard: '#14231A',
+    green: '#3DD675',
+    greenSoft: '#24412E',
     silhouette: '#24242B',
     silhouetteDeep: '#2F2F38',
     shadow: '#000000',

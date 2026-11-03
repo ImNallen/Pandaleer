@@ -2,18 +2,25 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 
-import { Text } from '@/ui/Text';
+import { SymbolView } from 'expo-symbols';
 
-/** "2,500 Steps" counting up to new totals, with the share of today's goal underneath. */
+import { Text } from '@/ui/Text';
+import { useTheme } from '@/ui/tokens';
+
+/** Today's steps counting up to new totals, with the share of the goal underneath. */
 export function StepCount({ steps, goal }: { steps: number; goal: number }) {
+  const theme = useTheme();
   const shown = useCountUp(steps);
   const percent = Math.floor((steps / goal) * 100);
   return (
     <View style={styles.container} accessible accessibilityLabel={`${steps.toLocaleString()} steps, ${percent}% of your goal of ${goal.toLocaleString()}`}>
-      <Text style={styles.steps} maxFontSizeMultiplier={1.25}>
-        {shown.toLocaleString()} <Text style={styles.unit}>Steps</Text>
-      </Text>
-      <Text muted style={styles.percent} maxFontSizeMultiplier={1.5}>
+      <View style={styles.row}>
+        <SymbolView name="shoeprints.fill" size={26} tintColor={theme.sky} style={styles.icon} />
+        <Text style={[styles.steps, { color: theme.sky }]} maxFontSizeMultiplier={1.25}>
+          {shown.toLocaleString()}
+        </Text>
+      </View>
+      <Text style={styles.percent} maxFontSizeMultiplier={1.5}>
         {percent}% of your goal
       </Text>
     </View>
@@ -47,8 +54,9 @@ function useCountUp(target: number): number {
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', gap: 2 },
-  steps: { fontSize: 48, fontWeight: '800', letterSpacing: -1, fontVariant: ['tabular-nums'] },
-  unit: { fontSize: 28, fontWeight: '700', letterSpacing: 0 },
-  percent: { fontSize: 17, fontWeight: '600' },
+  container: { alignItems: 'center', gap: 0 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  icon: { width: 26, height: 26 },
+  steps: { fontSize: 40, fontWeight: '800', letterSpacing: -0.8, fontVariant: ['tabular-nums'] },
+  percent: { fontSize: 15, fontWeight: '600' },
 });
