@@ -41,12 +41,12 @@ export function StreakBadge({ streak, progress }: Props) {
     <Animated.View
       accessible
       accessibilityLabel={`${days}. Today ${Math.floor(share * 100)}% of your goal.`}
-      style={[styles.badge, { shadowColor: theme.blue.light }, pop]}>
+      style={[styles.badge, pop]}>
       <Canvas style={StyleSheet.absoluteFill}>
         <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} style="stroke" strokeWidth={STROKE} color={theme.blue.soft} />
         <Path path={ARC} style="stroke" strokeWidth={STROKE} strokeCap="round" color={theme.blue.strong} start={0} end={arc} />
       </Canvas>
-      <View style={[styles.core, { backgroundColor: theme.blue.strong }]}>
+      <View style={[styles.core, { backgroundColor: theme.blue.strong, shadowColor: theme.blue.light }]}>
         <Text style={styles.count} maxFontSizeMultiplier={1.2}>
           {streak}
         </Text>
@@ -61,10 +61,16 @@ const styles = StyleSheet.create({
     height: SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
   },
-  core: { width: CORE, height: CORE, borderRadius: CORE / 2, alignItems: 'center', justifyContent: 'center' },
+  core: {
+    width: CORE,
+    height: CORE,
+    borderRadius: CORE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
   count: { color: '#FFFFFF', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'] },
 });

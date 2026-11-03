@@ -1,8 +1,9 @@
 import { Canvas, Group, Skia, type SkPath } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
-import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
+import { Easing, SensorType, useAnimatedSensor, useDerivedValue, useFrameCallback, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { PandaSilhouette } from '@/art/skia/PandaSilhouette';
+import { sloshStep, STILL, surfaceSlope, type Slosh } from '@/art/skia/slosh';
 import { useSceneClock } from '@/art/skia/useSceneClock';
 import { useTheme } from '@/ui/tokens';
 
@@ -23,8 +24,9 @@ export function PandaFill({ progress, size, celebrating, animated = true }: Prop
     level.value = withTiming(Math.min(1, progress), { duration: 1400, easing: Easing.out(Easing.cubic) });
   }, [progress, level]);
 
-  const surface = useDerivedValue(() => liquid(level.value, time.value, 0));
-  const backSurface = useDerivedValue(() => liquid(Math.min(1, level.value + 0.025), time.value, 2.1));
+  const slosh = useTilt(animated);
+  const surface = useDerivedValue(() => liquid(level.value, time.value, 0, slosh.value));
+  const backSurface = useDerivedValue(() => liquid(Math.min(1, level.value + 0.025), time.value, 2.1, slosh.value));
   const percent = Math.floor(Math.min(1, progress) * 100);
 
   return (
@@ -52,15 +54,32 @@ export function PandaFill({ progress, size, celebrating, animated = true }: Prop
   );
 }
 
-/** Everything below a gently rolling surface; the waves calm down near empty and full. */
-function liquid(level: number, t: number, phase: number): SkPath {
+/** The water stays level with the world as the phone tilts, sloshing a little before it settles. */
+function useTilt(animated: boolean) {
+  const reduceMotion = useReducedMotion();
+  const live = animated && !reduceMotion;
+  const gravity = useAnimatedSensor(SensorType.GRAVITY, { interval: 'auto' });
+  const slosh = useSharedValue<Slosh>(STILL);
+  useFrameCallback((frame) => {
+    const g = gravity.sensor.value;
+    const target = live ? surfaceSlope(g.x, g.y) : 0;
+    slosh.value = sloshStep(slosh.value, target, (frame.timeSincePreviousFrame ?? 16) / 1000);
+  });
+  return slosh;
+}
+
+/** Everything below a gently rolling surface that leans with the phone; the water calms down near empty and full. */
+function liquid(level: number, t: number, phase: number, slosh: Slosh): SkPath {
   'worklet';
   const y = BOTTOM - level * (BOTTOM - TOP);
-  const amplitude = 4 * Math.min(1, level * 8, (1 - level) * 8);
+  const room = Math.min(1, level * 8, (1 - level) * 8);
+  const amplitude = 4 * room * (1 + 2.5 * slosh.energy);
+  const lean = slosh.slope * Math.min(1, level * 4, (1 - level) * 4);
   const path = Skia.PathBuilder.Make();
-  path.moveTo(-10, y);
+  path.moveTo(-10, y + lean * -130);
   for (let x = -10; x <= 250; x += 10) {
-    path.lineTo(x, y + amplitude * (Math.sin(x * 0.045 + t * 2.4 + phase) + 0.5 * Math.sin(x * 0.09 - t * 1.7 + phase)));
+    const waves = Math.sin(x * 0.045 + t * 2.4 + phase) + 0.5 * Math.sin(x * 0.09 - t * 1.7 + phase);
+    path.lineTo(x, y + lean * (x - 120) + amplitude * waves);
   }
   path.lineTo(250, 260);
   path.lineTo(-10, 260);
