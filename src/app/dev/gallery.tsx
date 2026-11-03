@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Panda, type Expression, type PandaPose } from '@/art/panda/Panda';
+import type { PandaStyle } from '@/art/skia/PandaScene';
 import { PandaFill } from '@/components/PandaFill';
 import { SchemeScope, themes, useTheme, type Theme } from '@/ui/tokens';
 
@@ -11,6 +12,7 @@ const EXPRESSIONS: Expression[] = ['content', 'excited', 'sleepy'];
 const SMALL_SIZES = [40, 64, 96];
 const TILE = 132;
 const FILLS = [0, 0.25, 0.5, 0.75, 1];
+const LOOKS: PandaStyle[] = ['flat', 'soft', 'outlined'];
 
 export default function ArtGallery() {
   if (!__DEV__) return <Redirect href="/" />;
@@ -43,7 +45,29 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
     <View style={[styles.board, { backgroundColor: theme.background, borderColor: theme.hairline }]}>
       <Text style={[styles.boardTitle, { color: theme.text }]}>{theme.scheme === 'light' ? 'Light' : 'Dark'}</Text>
 
-      <Section title="Poses" theme={theme}>
+      <Section title="Compare styles" theme={theme}>
+        {LOOKS.map((look) => (
+          <Tile key={look} label={look} theme={theme} third>
+            <PandaFill progress={1} size={104} celebrating={false} look={look} animated={animated} />
+          </Tile>
+        ))}
+      </Section>
+
+      {LOOKS.map((look) => (
+        <Section key={look} title={`Skia panda · ${look}`} theme={theme}>
+          <Tile label="filling, 55%" theme={theme}>
+            <PandaFill progress={0.55} size={TILE} celebrating={false} look={look} animated={animated} />
+          </Tile>
+          <Tile label="goal met" theme={theme}>
+            <PandaFill progress={1} size={TILE} celebrating={false} look={look} animated={animated} />
+          </Tile>
+          <Tile label="cheering" theme={theme}>
+            <PandaFill progress={1} size={TILE} celebrating look={look} animated={animated} />
+          </Tile>
+        </Section>
+      ))}
+
+      <Section title="Old SVG poses" theme={theme}>
         {POSES.map((pose) => (
           <Tile key={pose} label={pose} theme={theme}>
             <Panda pose={pose} size={TILE} animated={animated} />
@@ -62,7 +86,7 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
       <Section title="Filling up" theme={theme}>
         {FILLS.map((progress) => (
           <Tile key={progress} label={`${progress * 100}%`} theme={theme}>
-            <PandaFill progress={progress} size={TILE} celebrating={false} />
+            <PandaFill progress={progress} size={TILE} celebrating={false} animated={animated} />
           </Tile>
         ))}
       </Section>
@@ -87,9 +111,9 @@ function Section({ title, theme, children }: { title: string; theme: Theme; chil
   );
 }
 
-function Tile({ label, theme, children }: { label: string; theme: Theme; children: React.ReactNode }) {
+function Tile({ label, theme, third = false, children }: { label: string; theme: Theme; third?: boolean; children: React.ReactNode }) {
   return (
-    <View style={[styles.tile, { backgroundColor: theme.fill, shadowColor: theme.shadow }]}>
+    <View style={[styles.tile, third && styles.third, { backgroundColor: theme.fill, shadowColor: theme.shadow }]}>
       {children}
       <Text style={[styles.tileLabel, { color: theme.textMuted }]}>{label}</Text>
     </View>
@@ -115,5 +139,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
   },
+  third: { flexBasis: '31.5%' },
   tileLabel: { fontSize: 13, fontWeight: '600', marginTop: 2 },
 });

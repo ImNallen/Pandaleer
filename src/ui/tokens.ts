@@ -25,6 +25,8 @@ const lightArt = {
   blush: '#F2998C',
   eye: '#2B1A12',
   shine: '#FFFFFF',
+  /** A soft line around the whole panda so white fur still reads on a white page. */
+  halo: '#EADFD5',
 };
 
 export type ArtPalette = typeof lightArt;
@@ -34,6 +36,7 @@ const darkArt: ArtPalette = {
   ...lightArt,
   brownSoft: '#7A4A2E',
   leatherDeep: '#9A5A35',
+  halo: '#2A221E',
 };
 
 export type Theme = {
