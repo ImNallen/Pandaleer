@@ -9,6 +9,7 @@
           "id": "bamboo-forest",
           "name": "Bamboo Forest",
           "stepsFromPrevious": 8000,
+          "terrain": "bamboo",
           "discovery": {
             "id": "bamboo-shoot",
             "name": "Fresh Bamboo Shoot",
@@ -21,6 +22,7 @@
           "id": "mossy-glade",
           "name": "Mossy Glade",
           "stepsFromPrevious": 8500,
+          "terrain": "meadow",
           "discovery": {
             "id": "rhododendron",
             "name": "Rhododendron",
@@ -33,6 +35,7 @@
           "id": "river-crossing",
           "name": "River Crossing",
           "stepsFromPrevious": 9000,
+          "terrain": "river",
           "discovery": {
             "id": "rope-bridge",
             "name": "Rope Bridge",
@@ -45,6 +48,7 @@
           "id": "tea-village",
           "name": "Tea Village",
           "stepsFromPrevious": 9500,
+          "terrain": "tea",
           "discovery": {
             "id": "tea-leaf",
             "name": "Tea Leaf",
@@ -57,6 +61,7 @@
           "id": "prayer-flag-hill",
           "name": "Prayer Flag Hill",
           "stepsFromPrevious": 10000,
+          "terrain": "flags",
           "discovery": {
             "id": "prayer-flags",
             "name": "Prayer Flags",
@@ -69,6 +74,7 @@
           "id": "langur-woods",
           "name": "Langur Woods",
           "stepsFromPrevious": 10500,
+          "terrain": "forest",
           "discovery": {
             "id": "golden-langur",
             "name": "Golden Langur",
@@ -81,6 +87,7 @@
           "id": "yak-meadow",
           "name": "Yak Meadow",
           "stepsFromPrevious": 11000,
+          "terrain": "meadow",
           "discovery": {
             "id": "yak",
             "name": "Yak",
@@ -93,6 +100,7 @@
           "id": "hot-spring-hollow",
           "name": "Hot Spring Hollow",
           "stepsFromPrevious": 11500,
+          "terrain": "hotspring",
           "discovery": {
             "id": "hot-spring",
             "name": "Hot Spring",
@@ -105,6 +113,7 @@
           "id": "mountain-pass",
           "name": "Mountain Pass",
           "stepsFromPrevious": 12000,
+          "terrain": "pass",
           "discovery": {
             "id": "stone-cairn",
             "name": "Stone Cairn",
@@ -117,6 +126,7 @@
           "id": "pine-ridge",
           "name": "Pine Ridge",
           "stepsFromPrevious": 12500,
+          "terrain": "forest",
           "discovery": {
             "id": "himalayan-monal",
             "name": "Himalayan Monal",
@@ -129,6 +139,7 @@
           "id": "snowy-ridge",
           "name": "Snowy Ridge",
           "stepsFromPrevious": 13000,
+          "terrain": "snow",
           "discovery": {
             "id": "snow-leopard-track",
             "name": "Snow Leopard Track",
@@ -141,6 +152,7 @@
           "id": "summit-lookout",
           "name": "Summit Lookout",
           "stepsFromPrevious": 13500,
+          "terrain": "snow",
           "discovery": {
             "id": "blue-poppy",
             "name": "Himalayan Blue Poppy",

@@ -25,6 +25,18 @@ const lightArt = {
   blush: '#F2998C',
   eye: '#2B1A12',
   shine: '#FFFFFF',
+  pine: '#3F7346',
+  stone: '#C2B7A5',
+  stoneDeep: '#A3967F',
+  ridge: '#B7C8DA',
+  ridgeDeep: '#9DB2C8',
+  night: '#1B2440',
+  trail: '#F0DDB4',
+  groundBamboo: '#C8E0A2',
+  groundMeadow: '#D9E8AC',
+  groundForest: '#B4D49B',
+  groundRock: '#DFD5C4',
+  groundSnow: '#EEF3F8',
 };
 
 export type ArtPalette = typeof lightArt;

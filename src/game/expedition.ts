@@ -11,6 +11,8 @@ export type Camp = {
   readonly id: string;
   readonly name: string;
   readonly stepsFromPrevious: number;
+  /** Key into the map's terrain registry; decides the scenery on the leg leading to this camp. */
+  readonly terrain: string;
   readonly discovery: Discovery;
 };
 
@@ -50,6 +52,7 @@ export function parseExpedition(raw: unknown): Expedition {
         id: unique(string(camp.id, `${at}.id`), at),
         name: string(camp.name, `${at}.name`),
         stepsFromPrevious: steps,
+        terrain: string(camp.terrain, `${at}.terrain`),
         discovery: {
           id: unique(string(discovery.id, `${at}.discovery.id`), `${at}.discovery`),
           name: string(discovery.name, `${at}.discovery.name`),
