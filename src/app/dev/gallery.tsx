@@ -3,14 +3,14 @@ import { Redirect } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { RED_PANDA, RedPanda, type PandaMotion } from '@/art/skia/RedPanda';
-import { useSceneClock } from '@/art/skia/useSceneClock';
+import { RedPanda, usePandaImage } from '@/art/skia/RedPanda';
+import type { PandaPose } from '@/art/skia/pandaPose';
 import { Logo } from '@/components/Logo';
 import { PandaFill } from '@/components/PandaFill';
 import { SchemeScope, themes, useTheme, type Theme } from '@/ui/tokens';
 
 const FILLS = [0, 0.4, 0.75, 1];
-const MOTIONS: PandaMotion[] = ['idle', 'walk', 'cheer'];
+const POSES: PandaPose[] = ['wave', 'walk', 'brisk', 'celebrate'];
 const TILE = 104;
 
 export default function ArtGallery() {
@@ -24,7 +24,7 @@ function Gallery() {
   return (
     <ScrollView style={{ backgroundColor: theme.background }} contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="automatic">
       <View style={styles.toggle}>
-        <Text style={[styles.toggleLabel, { color: theme.text }]}>Animate</Text>
+        <Text style={[styles.toggleLabel, { color: theme.text }]}>Animate water</Text>
         <Switch value={animated} onValueChange={setAnimated} />
       </View>
       {(['light', 'dark'] as const).map((scheme) => (
@@ -40,32 +40,30 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
   return (
     <View style={[styles.board, { backgroundColor: theme.background, borderColor: theme.hairline }]}>
       <Text style={[styles.boardTitle, { color: theme.text }]}>{theme.scheme === 'light' ? 'Light' : 'Dark'}</Text>
-      <Logo size={96} animated={animated} />
+      <Logo size={96} />
       <View style={styles.grid}>
-        {MOTIONS.map((motion) => (
-          <Tile key={motion} label={motion} theme={theme}>
-            <ColourPanda motion={motion} animated={animated} />
+        {POSES.map((pose) => (
+          <Tile key={pose} label={pose} theme={theme}>
+            <ColourPanda pose={pose} />
           </Tile>
         ))}
         {FILLS.map((progress) => (
           <Tile key={progress} label={`${progress * 100}%`} theme={theme}>
-            <PandaFill progress={progress} size={TILE} celebrating={false} animated={animated} />
+            <PandaFill progress={progress} size={TILE} animated={animated} />
           </Tile>
         ))}
-        <Tile label="cheering" theme={theme}>
-          <PandaFill progress={1} size={TILE} celebrating animated={animated} />
-        </Tile>
       </View>
     </View>
   );
 }
 
-function ColourPanda({ motion, animated }: { motion: PandaMotion; animated: boolean }) {
-  const time = useSceneClock(animated);
+function ColourPanda({ pose }: { pose: PandaPose }) {
+  const theme = useTheme();
+  const image = usePandaImage(pose);
   return (
     <Canvas style={{ width: TILE, height: TILE }}>
       <Group transform={[{ scale: TILE / 240 }]}>
-        <RedPanda colors={RED_PANDA} motion={motion} time={time} />
+        <RedPanda image={image} theme={theme} pose={pose} />
       </Group>
     </Canvas>
   );

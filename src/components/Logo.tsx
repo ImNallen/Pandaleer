@@ -1,20 +1,18 @@
 import { Canvas, Group } from '@shopify/react-native-skia';
 import { StyleSheet, View } from 'react-native';
 
-import { RED_PANDA, RedPanda, type PandaMotion } from '@/art/skia/RedPanda';
-import { useSceneClock } from '@/art/skia/useSceneClock';
+import { RedPanda, usePandaImage } from '@/art/skia/RedPanda';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
-/** The colour panda, walking by default, beside the Pandaleer wordmark. */
-export function Logo({ size, motion = 'walk', animated = true }: { size: number; motion?: PandaMotion; animated?: boolean }) {
+export function Logo({ size }: { size: number }) {
   const theme = useTheme();
-  const time = useSceneClock(animated);
+  const image = usePandaImage('wave');
   return (
     <View style={styles.row} accessible accessibilityRole="image" accessibilityLabel="Pandaleer">
       <Canvas style={{ width: size, height: size }}>
         <Group transform={[{ scale: size / 240 }]}>
-          <RedPanda colors={RED_PANDA} motion={motion} time={time} />
+          <RedPanda image={image} theme={theme} pose="wave" />
         </Group>
       </Canvas>
       <Text style={[styles.word, { fontSize: size * 0.3, color: theme.text }]}>Pandaleer</Text>
