@@ -1,437 +1,1002 @@
 {
-  "about": "computeGame(input, expedition.json) must deep-equal expected. Thresholds in expedition.json: a1 at 1000, a2 at 3000, b1 at 6000 cumulative steps.",
+  "about": "computeGame(input) must deep-equal expected. days runs from journeyStart through today, oldest first.",
   "cases": [
     {
       "name": "fresh start with no steps",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
         "dailyTotals": {}
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 0, "goal": 1000, "goalMet": false, "pose": "sleeping" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 0,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 0, "stepsRemaining": 1000 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 0,
+          "goal": 1000,
+          "met": false,
+          "pose": "sleeping"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "just under a quarter of the goal is still sleeping",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 249 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 249
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 249, "goal": 1000, "goalMet": false, "pose": "sleeping" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 249,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 249, "stepsRemaining": 751 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 249,
+          "goal": 1000,
+          "met": false,
+          "pose": "sleeping"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 249,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "a quarter of the goal is packing",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 250 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 250
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 250, "goal": 1000, "goalMet": false, "pose": "packing" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 250,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 250, "stepsRemaining": 750 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 250,
+          "goal": 1000,
+          "met": false,
+          "pose": "packing"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 250,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "half the goal is walking",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 500 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 500
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 500, "goal": 1000, "goalMet": false, "pose": "walking" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 500,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 500, "stepsRemaining": 500 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 500,
+          "goal": 1000,
+          "met": false,
+          "pose": "walking"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 500,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "one step short of the goal is still walking",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 999 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 999
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 999, "goal": 1000, "goalMet": false, "pose": "walking" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 999,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 999, "stepsRemaining": 1 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 999,
+          "goal": 1000,
+          "met": false,
+          "pose": "walking"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 999,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
-      "name": "meeting the goal plants the flag, lights the fire and reaches the first camp",
+      "name": "meeting the goal plants the flag and lights the fire",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 1000, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": true },
-        "trail": {
-          "totalSteps": 1000,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 0, "stepsRemaining": 2000 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 1000,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 1,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          }
+        ]
       }
     },
     {
-      "name": "crossing midnight starts a fresh day but keeps yesterday's streak and steps",
+      "name": "crossing midnight starts a fresh day but keeps yesterday's streak",
       "input": {
         "today": "2026-03-11",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1200 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1200
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-11", "steps": 0, "goal": 1000, "goalMet": false, "pose": "sleeping" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": false },
-        "trail": {
-          "totalSteps": 1200,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 200, "stepsRemaining": 1800 }
+        "today": {
+          "date": "2026-03-11",
+          "steps": 0,
+          "goal": 1000,
+          "met": false,
+          "pose": "sleeping"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 1,
+          "litToday": false
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1200,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "a missed day with no data leaves embers of the last streak",
       "input": {
         "today": "2026-03-13",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 1100, "2026-03-13": 200 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1100,
+          "2026-03-13": 200
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-13", "steps": 200, "goal": 1000, "goalMet": false, "pose": "sleeping" },
-        "campfire": { "kind": "embers", "lastStreak": 2 },
-        "trail": {
-          "totalSteps": 2300,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 1300, "stepsRemaining": 700 }
+        "today": {
+          "date": "2026-03-13",
+          "steps": 200,
+          "goal": 1000,
+          "met": false,
+          "pose": "sleeping"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "embers",
+          "lastStreak": 2
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1100,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 200,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "meeting the goal after a missed day relights the fire at one",
       "input": {
         "today": "2026-03-13",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 1100, "2026-03-13": 1000 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1100,
+          "2026-03-13": 1000
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-13", "steps": 1000, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": true },
-        "trail": {
-          "totalSteps": 3100,
-          "campsReached": 2,
-          "position": { "kind": "traveling", "regionId": "ridge", "nextCampId": "b1", "legSteps": 3000, "stepsIntoLeg": 100, "stepsRemaining": 2900 }
+        "today": {
+          "date": "2026-03-13",
+          "steps": 1000,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": ["d-a1", "d-a2"]
+        "campfire": {
+          "kind": "burning",
+          "days": 1,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1100,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          }
+        ]
       }
     },
     {
       "name": "five met days in a row burn for five",
       "input": {
         "today": "2026-03-14",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 1000, "2026-03-12": 1000, "2026-03-13": 1000, "2026-03-14": 1000 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1000,
+          "2026-03-12": 1000,
+          "2026-03-13": 1000,
+          "2026-03-14": 1000
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-14", "steps": 1000, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 5, "litToday": true },
-        "trail": {
-          "totalSteps": 5000,
-          "campsReached": 2,
-          "position": { "kind": "traveling", "regionId": "ridge", "nextCampId": "b1", "legSteps": 3000, "stepsIntoLeg": 2000, "stepsRemaining": 1000 }
+        "today": {
+          "date": "2026-03-14",
+          "steps": 1000,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": ["d-a1", "d-a2"]
+        "campfire": {
+          "kind": "burning",
+          "days": 5,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          }
+        ]
       }
     },
     {
-      "name": "steps and streak days before the expedition start do not count",
+      "name": "days before the journey start are not on the map and do not count for the streak",
       "input": {
         "today": "2026-03-13",
-        "expeditionStart": "2026-03-12",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 5000, "2026-03-11": 5000, "2026-03-12": 1000 }
+        "journeyStart": "2026-03-12",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 5000,
+          "2026-03-11": 5000,
+          "2026-03-12": 1000
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-13", "steps": 0, "goal": 1000, "goalMet": false, "pose": "sleeping" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": false },
-        "trail": {
-          "totalSteps": 1000,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 0, "stepsRemaining": 2000 }
+        "today": {
+          "date": "2026-03-13",
+          "steps": 0,
+          "goal": 1000,
+          "met": false,
+          "pose": "sleeping"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 1,
+          "litToday": false
+        },
+        "days": [
+          {
+            "date": "2026-03-12",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "raising the goal mid-day applies to today only",
       "input": {
         "today": "2026-03-12",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }, { "from": "2026-03-12", "goal": 2000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 1500, "2026-03-12": 1500 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          },
+          {
+            "from": "2026-03-12",
+            "goal": 2000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1500,
+          "2026-03-12": 1500
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-12", "steps": 1500, "goal": 2000, "goalMet": false, "pose": "walking" },
-        "campfire": { "kind": "burning", "days": 2, "litToday": false },
-        "trail": {
-          "totalSteps": 4000,
-          "campsReached": 2,
-          "position": { "kind": "traveling", "regionId": "ridge", "nextCampId": "b1", "legSteps": 3000, "stepsIntoLeg": 1000, "stepsRemaining": 2000 }
+        "today": {
+          "date": "2026-03-12",
+          "steps": 1500,
+          "goal": 2000,
+          "met": false,
+          "pose": "walking"
         },
-        "discoveries": ["d-a1", "d-a2"]
+        "campfire": {
+          "kind": "burning",
+          "days": 2,
+          "litToday": false
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1500,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 1500,
+            "goal": 2000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "lowering the goal mid-day below today's steps meets it",
       "input": {
         "today": "2026-03-11",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }, { "from": "2026-03-11", "goal": 500 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 600 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          },
+          {
+            "from": "2026-03-11",
+            "goal": 500
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 600
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-11", "steps": 600, "goal": 500, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 2, "litToday": true },
-        "trail": {
-          "totalSteps": 1600,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 600, "stepsRemaining": 1400 }
+        "today": {
+          "date": "2026-03-11",
+          "steps": 600,
+          "goal": 500,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 2,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 600,
+            "goal": 500,
+            "met": true
+          }
+        ]
       }
     },
     {
       "name": "days before the first goal entry use the first goal",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-09",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-09": 1000 }
+        "journeyStart": "2026-03-09",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-09": 1000
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 0, "goal": 1000, "goalMet": false, "pose": "sleeping" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": false },
-        "trail": {
-          "totalSteps": 1000,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 0, "stepsRemaining": 2000 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 0,
+          "goal": 1000,
+          "met": false,
+          "pose": "sleeping"
         },
-        "discoveries": ["d-a1"]
-      }
-    },
-    {
-      "name": "one big day reaches two camps and crosses into the next region",
-      "input": {
-        "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 3500 }
-      },
-      "expected": {
-        "today": { "date": "2026-03-10", "steps": 3500, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": true },
-        "trail": {
-          "totalSteps": 3500,
-          "campsReached": 2,
-          "position": { "kind": "traveling", "regionId": "ridge", "nextCampId": "b1", "legSteps": 3000, "stepsIntoLeg": 500, "stepsRemaining": 2500 }
+        "campfire": {
+          "kind": "burning",
+          "days": 1,
+          "litToday": false
         },
-        "discoveries": ["d-a1", "d-a2"]
-      }
-    },
-    {
-      "name": "one huge day completes the whole expedition",
-      "input": {
-        "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 6500 }
-      },
-      "expected": {
-        "today": { "date": "2026-03-10", "steps": 6500, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 1, "litToday": true },
-        "trail": { "totalSteps": 6500, "campsReached": 3, "position": { "kind": "complete" } },
-        "discoveries": ["d-a1", "d-a2", "d-b1"]
+        "days": [
+          {
+            "date": "2026-03-09",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "westward flight, before: evening in Stockholm",
       "input": {
         "today": "2026-03-12",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 1000, "2026-03-12": 400 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1000,
+          "2026-03-12": 400
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-12", "steps": 400, "goal": 1000, "goalMet": false, "pose": "packing" },
-        "campfire": { "kind": "burning", "days": 2, "litToday": false },
-        "trail": {
-          "totalSteps": 2400,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 1400, "stepsRemaining": 600 }
+        "today": {
+          "date": "2026-03-12",
+          "steps": 400,
+          "goal": 1000,
+          "met": false,
+          "pose": "packing"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 2,
+          "litToday": false
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 400,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "westward flight, after: same steps re-bucketed in New York, the date moves back",
       "input": {
         "today": "2026-03-11",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 1400 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1400
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-11", "steps": 1400, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 2, "litToday": true },
-        "trail": {
-          "totalSteps": 2400,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 1400, "stepsRemaining": 600 }
+        "today": {
+          "date": "2026-03-11",
+          "steps": 1400,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 2,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1400,
+            "goal": 1000,
+            "met": true
+          }
+        ]
       }
     },
     {
       "name": "eastward flight, before: evening in New York",
       "input": {
         "today": "2026-03-11",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1200, "2026-03-11": 1300 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1200,
+          "2026-03-11": 1300
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-11", "steps": 1300, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "burning", "days": 2, "litToday": true },
-        "trail": {
-          "totalSteps": 2500,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 1500, "stepsRemaining": 500 }
+        "today": {
+          "date": "2026-03-11",
+          "steps": 1300,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 2,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1200,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1300,
+            "goal": 1000,
+            "met": true
+          }
+        ]
       }
     },
     {
       "name": "eastward flight, after: same steps re-bucketed in Tokyo, the date jumps ahead",
       "input": {
         "today": "2026-03-12",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1100, "2026-03-11": 1000, "2026-03-12": 400 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1100,
+          "2026-03-11": 1000,
+          "2026-03-12": 400
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-12", "steps": 400, "goal": 1000, "goalMet": false, "pose": "packing" },
-        "campfire": { "kind": "burning", "days": 2, "litToday": false },
-        "trail": {
-          "totalSteps": 2500,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 1500, "stepsRemaining": 500 }
+        "today": {
+          "date": "2026-03-12",
+          "steps": 400,
+          "goal": 1000,
+          "met": false,
+          "pose": "packing"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "burning",
+          "days": 2,
+          "litToday": false
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1100,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 400,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
-      "name": "eastward flight can re-bucket a met day below goal: total steps are kept, the streak is recomputed",
+      "name": "eastward flight can re-bucket a met day below goal: the streak is recomputed from the new days",
       "input": {
         "today": "2026-03-12",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 1000, "2026-03-11": 700, "2026-03-12": 300 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 700,
+          "2026-03-12": 300
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-12", "steps": 300, "goal": 1000, "goalMet": false, "pose": "packing" },
-        "campfire": { "kind": "embers", "lastStreak": 1 },
-        "trail": {
-          "totalSteps": 2000,
-          "campsReached": 1,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a2", "legSteps": 2000, "stepsIntoLeg": 1000, "stepsRemaining": 1000 }
+        "today": {
+          "date": "2026-03-12",
+          "steps": 300,
+          "goal": 1000,
+          "met": false,
+          "pose": "packing"
         },
-        "discoveries": ["d-a1"]
+        "campfire": {
+          "kind": "embers",
+          "lastStreak": 1
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 700,
+            "goal": 1000,
+            "met": false
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 300,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
       "name": "totals dated after today are ignored",
       "input": {
         "today": "2026-03-10",
-        "expeditionStart": "2026-03-10",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-10": 500, "2026-03-11": 9000 }
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 500,
+          "2026-03-11": 9000
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-10", "steps": 500, "goal": 1000, "goalMet": false, "pose": "walking" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 500,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 500, "stepsRemaining": 500 }
+        "today": {
+          "date": "2026-03-10",
+          "steps": 500,
+          "goal": 1000,
+          "met": false,
+          "pose": "walking"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 500,
+            "goal": 1000,
+            "met": false
+          }
+        ]
       }
     },
     {
-      "name": "today before the expedition start shows today's goal but counts nothing toward the expedition",
+      "name": "today before the journey start shows today's goal but no days",
       "input": {
         "today": "2026-03-11",
-        "expeditionStart": "2026-03-12",
-        "goalHistory": [{ "from": "2026-03-10", "goal": 1000 }],
-        "dailyTotals": { "2026-03-11": 1500 }
+        "journeyStart": "2026-03-12",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-11": 1500
+        }
       },
       "expected": {
-        "today": { "date": "2026-03-11", "steps": 1500, "goal": 1000, "goalMet": true, "pose": "flag" },
-        "campfire": { "kind": "unlit" },
-        "trail": {
-          "totalSteps": 0,
-          "campsReached": 0,
-          "position": { "kind": "traveling", "regionId": "valley", "nextCampId": "a1", "legSteps": 1000, "stepsIntoLeg": 0, "stepsRemaining": 1000 }
+        "today": {
+          "date": "2026-03-11",
+          "steps": 1500,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
         },
-        "discoveries": []
+        "campfire": {
+          "kind": "unlit"
+        },
+        "days": []
+      }
+    },
+    {
+      "name": "a big day after a rest day relights the fire and shows both days",
+      "input": {
+        "today": "2026-03-12",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-12": 25000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-12",
+          "steps": 25000,
+          "goal": 1000,
+          "met": true,
+          "pose": "flag"
+        },
+        "campfire": {
+          "kind": "burning",
+          "days": 1,
+          "litToday": true
+        },
+        "days": [
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 25000,
+            "goal": 1000,
+            "met": true
+          }
+        ]
       }
     }
   ]

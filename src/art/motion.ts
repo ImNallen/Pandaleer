@@ -15,7 +15,7 @@ export function useArtClock(animated: boolean): SharedValue<number> {
   const active = animated && !reduceMotion;
   useEffect(() => {
     frame.setActive(active);
-    if (!active) time.value = 0;
+    if (!active) time.set(0);
   }, [active, frame, time]);
 
   return time;

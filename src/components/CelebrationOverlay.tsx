@@ -5,18 +5,17 @@ import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
 
 import { Panda } from '@/art/panda/Panda';
 import { celebrationCopy } from '@/copy';
-import type { Celebration } from '@/game/celebration';
 import type { Campfire } from '@/game/game';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
 import { Confetti } from './Confetti';
 
-type Props = { celebration: Celebration; fire: Campfire; onDone: () => void };
+type Props = { fire: Campfire; onDone: () => void };
 
-export function CelebrationOverlay({ celebration, fire, onDone }: Props) {
+export function CelebrationOverlay({ fire, onDone }: Props) {
   const theme = useTheme();
-  const { title, message } = celebrationCopy(celebration, fire);
+  const { title, message } = celebrationCopy(fire);
 
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

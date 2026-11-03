@@ -7,9 +7,8 @@ import { Campfire } from '@/art/Campfire';
 import { Panda } from '@/art/panda/Panda';
 import { CelebrationOverlay } from '@/components/CelebrationOverlay';
 import { ProgressRing } from '@/components/ProgressRing';
-import { stopByCampId } from '@/content';
 import { fireCopy, todayLine } from '@/copy';
-import { pendingCelebration } from '@/game/celebration';
+import { shouldCelebrateGoal } from '@/game/celebration';
 import type { GameState } from '@/game/game';
 import { useCelebrations } from '@/state/celebrations';
 import { DEFAULT_GOAL, useSettings } from '@/state/settings';
@@ -39,7 +38,7 @@ function TodayContent({ game }: { game: GameState }) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const ring = Math.min(width - 48, 320);
-  const { steps, goal, goalMet, pose } = game.today;
+  const { steps, goal, met: goalMet, pose } = game.today;
 
   return (
     <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 96 }]}>
@@ -66,7 +65,6 @@ function TodayContent({ game }: { game: GameState }) {
 
       <SpeechBubble line={todayLine(game.today)} />
       <FireCard game={game} />
-      <NextCampCard position={game.trail.position} />
 
       {__DEV__ && <DevLinks />}
     </ScrollView>
@@ -86,7 +84,7 @@ function SpeechBubble({ line }: { line: string }) {
 }
 
 function FireCard({ game }: { game: GameState }) {
-  const { title, detail } = fireCopy(game.campfire, game.today.goalMet);
+  const { title, detail } = fireCopy(game.campfire, game.today.met);
   const stacked = useWindowDimensions().fontScale >= 1.4;
   return (
     <Card style={stacked ? styles.gap : styles.row}>
@@ -99,41 +97,10 @@ function FireCard({ game }: { game: GameState }) {
   );
 }
 
-function NextCampCard({ position }: { position: GameState['trail']['position'] }) {
-  const theme = useTheme();
-  if (position.kind === 'complete') {
-    return (
-      <Card>
-        <Text variant="heading">Expedition complete!</Text>
-        <Text muted>We visited every camp in the region. What a team.</Text>
-      </Card>
-    );
-  }
-  const camp = stopByCampId.get(position.nextCampId)!.camp;
-  return (
-    <Card style={styles.gap} accessible accessibilityLabel={`Next camp: ${camp.name}, ${position.stepsRemaining.toLocaleString()} steps to go`}>
-      <Text variant="caption" muted>
-        NEXT CAMP
-      </Text>
-      <Text variant="heading">{camp.name}</Text>
-      <View style={[styles.track, { backgroundColor: theme.track }]}>
-        <View style={[styles.fill, { backgroundColor: theme.art.bamboo, width: `${(position.stepsIntoLeg / position.legSteps) * 100}%` }]} />
-      </View>
-      <Text muted>{position.stepsRemaining.toLocaleString()} steps to go</Text>
-    </Card>
-  );
-}
-
 function Celebrations({ game }: { game: GameState }) {
-  const acks = useCelebrations();
-  const celebration = pendingCelebration(game, acks);
-
-  useEffect(() => {
-    if (acks.campsSeen === null) useCelebrations.setState({ campsSeen: game.trail.campsReached });
-  }, [acks.campsSeen, game.trail.campsReached]);
-
-  if (!celebration) return null;
-  return <CelebrationOverlay celebration={celebration} fire={game.campfire} onDone={() => acks.acknowledge(game)} />;
+  const { goalCelebratedOn, acknowledge } = useCelebrations();
+  if (!shouldCelebrateGoal(game, goalCelebratedOn)) return null;
+  return <CelebrationOverlay fire={game.campfire} onDone={() => acknowledge(game)} />;
 }
 
 function DevLinks() {

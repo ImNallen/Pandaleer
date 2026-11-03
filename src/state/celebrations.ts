@@ -1,29 +1,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { acknowledge, type CelebrationAcks } from '@/game/celebration';
+import { acknowledgeGoal, type GoalCelebratedOn } from '@/game/celebration';
 import type { GameState } from '@/game/game';
 import { zustandStorage } from '@/storage';
 
-type Actions = {
-  acknowledge: (game: GameState) => void;
-  /** After an expedition restart every camp is new again. */
-  reset: () => void;
-};
+type State = { goalCelebratedOn: GoalCelebratedOn; acknowledge: (game: GameState) => void };
 
-export const useCelebrations = create<CelebrationAcks & Actions>()(
+export const useCelebrations = create<State>()(
   persist(
     (set, get) => ({
-      campsSeen: null,
       goalCelebratedOn: null,
-      acknowledge: (game) => set(acknowledge(game, get())),
-      reset: () => set({ campsSeen: 0, goalCelebratedOn: null }),
+      acknowledge: (game) => set({ goalCelebratedOn: acknowledgeGoal(game, get().goalCelebratedOn) }),
     }),
     {
       name: 'celebrations',
-      version: 1,
+      version: 2,
       storage: zustandStorage,
-      partialize: ({ campsSeen, goalCelebratedOn }) => ({ campsSeen, goalCelebratedOn }),
+      partialize: ({ goalCelebratedOn }) => ({ goalCelebratedOn }),
+      migrate: (persisted) => ({ goalCelebratedOn: (persisted as { goalCelebratedOn?: GoalCelebratedOn }).goalCelebratedOn ?? null }),
     },
   ),
 );

@@ -1,9 +1,8 @@
 import { Redirect } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { mockSteps } from '@/steps/mock';
-import { useCelebrations } from '@/state/celebrations';
 import { useDev } from '@/state/dev';
 import { useSettings } from '@/state/settings';
 import { stepSource } from '@/steps';
@@ -44,11 +43,8 @@ function MockStepsPanel() {
       <Section title="Reset">
         <Button label="Clear all mock steps" onPress={mockSteps.clear} />
         <Button
-          label="Restart expedition today"
-          onPress={() => {
-            useSettings.getState().resetExpedition(today);
-            useCelebrations.getState().reset();
-          }}
+          label="Restart journey today"
+          onPress={() => useSettings.getState().restartJourney(today)}
         />
       </Section>
     </ScrollView>
@@ -56,12 +52,7 @@ function MockStepsPanel() {
 }
 
 function useMockStepsOn(date: ReturnType<typeof useToday>): number {
-  const [steps, setSteps] = useState(() => mockSteps.stepsOn(date));
-  useEffect(() => {
-    setSteps(mockSteps.stepsOn(date));
-    return stepSource.subscribe(() => setSteps(mockSteps.stepsOn(date)));
-  }, [date]);
-  return steps;
+  return useSyncExternalStore(stepSource.subscribe, () => mockSteps.stepsOn(date));
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

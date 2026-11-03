@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 
-import { expedition } from '@/content';
 import type { LocalDate } from '@/game/date';
 import { computeGame, type DailyTotals, type GameState } from '@/game/game';
 import { stepSource } from '@/steps';
@@ -12,15 +11,13 @@ import { useToday } from '@/time/today';
 export function useGame(): GameState | null {
   const today = useToday();
   const goalHistory = useSettings((state) => state.goalHistory);
-  const expeditionStart = useSettings((state) => state.expeditionStart);
-  const dailyTotals = useDailyTotals(expeditionStart, today);
+  const journeyStart = useSettings((state) => state.journeyStart);
+  const dailyTotals = useDailyTotals(journeyStart, today);
 
   return useMemo(
     () =>
-      goalHistory && expeditionStart && dailyTotals
-        ? computeGame({ today, dailyTotals, goalHistory, expeditionStart }, expedition)
-        : null,
-    [today, dailyTotals, goalHistory, expeditionStart],
+      goalHistory && journeyStart && dailyTotals ? computeGame({ today, dailyTotals, goalHistory, journeyStart }) : null,
+    [today, dailyTotals, goalHistory, journeyStart],
   );
 }
 
