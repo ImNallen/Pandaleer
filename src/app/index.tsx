@@ -48,7 +48,7 @@ function HomeContent({ game }: { game: GameState }) {
   return (
     <View style={[styles.flex, styles.screen, { paddingTop: insets.top + 4, paddingBottom: insets.bottom + 8 }]}>
       <Animated.View entering={enter(0)}>
-        <Header streak={game.streak} litToday={game.today.met} />
+        <Header streak={game.streak} progress={game.today.steps / game.today.goal} />
       </Animated.View>
       <Animated.View entering={enter(1)} style={styles.count}>
         <StepCount steps={game.today.steps} goal={game.today.goal} />
@@ -69,11 +69,11 @@ function HomeContent({ game }: { game: GameState }) {
   );
 }
 
-function Header({ streak, litToday }: { streak: number; litToday: boolean }) {
+function Header({ streak, progress }: { streak: number; progress: number }) {
   const theme = useTheme();
   return (
     <View style={styles.header}>
-      <StreakBadge streak={streak} litToday={litToday} />
+      <StreakBadge streak={streak} progress={progress} />
       <PressableScale
         accessibilityRole="button"
         accessibilityLabel="Settings"

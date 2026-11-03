@@ -1,65 +1,69 @@
-import { SymbolView } from 'expo-symbols';
+import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
-type Props = { streak: number; litToday: boolean };
+const SIZE = 44;
+const STROKE = 3.5;
+const RADIUS = (SIZE - STROKE) / 2;
+const CORE = SIZE - 2 * (STROKE + 3);
 
-/**
- * A flame and the streak count. Bold blue once today's goal is met; quiet and outlined while today
- * still has to be walked, so the badge itself says whether the streak is safe.
- */
-export function StreakBadge({ streak, litToday }: Props) {
+/** A full circle starting at twelve o'clock, so trimming its end draws today's progress clockwise. */
+const ARC = Skia.Path.MakeFromSVGString(
+  `M ${SIZE / 2} ${STROKE / 2} A ${RADIUS} ${RADIUS} 0 1 1 ${SIZE / 2 - 0.01} ${STROKE / 2}`,
+)!;
+
+type Props = { streak: number; progress: number };
+
+/** The streak count in a blue circle, ringed by today's progress toward the goal. */
+export function StreakBadge({ streak, progress }: Props) {
   const theme = useTheme();
-  const reduceMotion = useReducedMotion();
   const scale = useSharedValue(1);
+  const arc = useSharedValue(0);
+  const share = Math.min(1, progress);
 
   useEffect(() => {
-    scale.value = withSequence(withSpring(1.18, { damping: 7 }), withSpring(1, { damping: 11 }));
-  }, [streak, litToday, scale]);
+    scale.value = withSequence(withSpring(1.15, { damping: 7 }), withSpring(1, { damping: 11 }));
+  }, [streak, scale]);
+
+  useEffect(() => {
+    arc.value = withTiming(share, { duration: 1200, easing: Easing.out(Easing.cubic) });
+  }, [share, arc]);
 
   const pop = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  const style = litToday
-    ? { backgroundColor: theme.blue.strong, borderColor: theme.background, shadowColor: theme.blue.light, shadowOpacity: 0.45 }
-    : { backgroundColor: theme.blue.faint, borderColor: theme.blue.soft, shadowOpacity: 0 };
-  const ink = litToday ? '#FFFFFF' : theme.blue.strong;
   const days = streak === 1 ? '1-day streak' : `${streak}-day streak`;
 
   return (
     <Animated.View
       accessible
-      accessibilityLabel={litToday ? `${days}, today's goal is done` : streak > 0 ? `${days}, walk today to keep it going` : 'No streak yet, reach today’s goal to start one'}
-      style={[styles.badge, style, pop]}>
-      <SymbolView
-        key={`${streak}-${litToday}`}
-        name={litToday ? 'flame.fill' : 'flame'}
-        size={17}
-        weight="bold"
-        tintColor={ink}
-        animationSpec={reduceMotion ? undefined : { effect: { type: 'bounce', wholeSymbol: true }, repeating: false }}
-      />
-      <Text style={[styles.count, { color: ink }]} maxFontSizeMultiplier={1.3}>
-        {streak}
-      </Text>
+      accessibilityLabel={`${days}. Today ${Math.floor(share * 100)}% of your goal.`}
+      style={[styles.badge, { shadowColor: theme.blue.light }, pop]}>
+      <Canvas style={StyleSheet.absoluteFill}>
+        <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} style="stroke" strokeWidth={STROKE} color={theme.blue.soft} />
+        <Path path={ARC} style="stroke" strokeWidth={STROKE} strokeCap="round" color={theme.blue.strong} start={0} end={arc} />
+      </Canvas>
+      <View style={[styles.core, { backgroundColor: theme.blue.strong }]}>
+        <Text style={styles.count} maxFontSizeMultiplier={1.2}>
+          {streak}
+        </Text>
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   badge: {
-    flexDirection: 'row',
+    width: SIZE,
+    height: SIZE,
     alignItems: 'center',
-    gap: 5,
-    height: 36,
-    paddingLeft: 10,
-    paddingRight: 13,
-    borderRadius: 18,
-    borderWidth: 2.5,
+    justifyContent: 'center',
+    shadowOpacity: 0.35,
     shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 3 },
   },
-  count: { fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  core: { width: CORE, height: CORE, borderRadius: CORE / 2, alignItems: 'center', justifyContent: 'center' },
+  count: { color: '#FFFFFF', fontSize: 16, fontWeight: '800', fontVariant: ['tabular-nums'] },
 });
