@@ -15,16 +15,23 @@ export function useToday(): LocalDate {
   const [date, setDate] = useState(() => localDateOf(new Date()));
 
   useEffect(() => {
-    const refresh = () => setDate(localDateOf(new Date()));
-    const nextMidnight = new Date();
-    nextMidnight.setHours(24, 0, 1, 0);
-    const timer = setTimeout(refresh, nextMidnight.getTime() - Date.now());
-    const subscription = AppState.addEventListener('change', (state) => state === 'active' && refresh());
+    // Every check re-arms the timer from the current clock and time zone, so a same-date time zone change can't leave it aimed at the wrong midnight.
+    let timer: ReturnType<typeof setTimeout>;
+    const check = () => {
+      clearTimeout(timer);
+      const now = new Date();
+      setDate(localDateOf(now));
+      const nextMidnight = new Date(now);
+      nextMidnight.setHours(24, 0, 1, 0);
+      timer = setTimeout(check, nextMidnight.getTime() - now.getTime());
+    };
+    check();
+    const subscription = AppState.addEventListener('change', (state) => state === 'active' && check());
     return () => {
       clearTimeout(timer);
       subscription.remove();
     };
-  }, [date]);
+  }, []);
 
   return addDays(date, dayOffset);
 }
