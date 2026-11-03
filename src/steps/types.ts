@@ -13,5 +13,7 @@ export interface StepSource {
   requestAccess(): Promise<HealthAccess>;
   /** Totals per local calendar day in the device's current time zone, `from` and `to` inclusive. */
   dailyTotals(from: LocalDate, to: LocalDate): Promise<DailyTotals>;
+  /** 24 entries, steps per local hour of `date`. */
+  hourlyTotals(date: LocalDate): Promise<readonly number[]>;
   subscribe(onChange: () => void): () => void;
 }

@@ -46,3 +46,29 @@ function useDailyTotals(from: LocalDate | null, to: LocalDate): DailyTotals | nu
 
   return totals;
 }
+
+/** Today's steps per local hour, refreshed like the daily totals. */
+export function useHourlySteps(date: LocalDate): readonly number[] | null {
+  const [hours, setHours] = useState<readonly number[] | null>(null);
+
+  useEffect(() => {
+    let latest = 0;
+    let live = true;
+    const load = () => {
+      const request = ++latest;
+      stepSource.hourlyTotals(date).then((result) => {
+        if (live && request === latest) setHours(result);
+      });
+    };
+    load();
+    const unsubscribe = stepSource.subscribe(load);
+    const subscription = AppState.addEventListener('change', (state) => state === 'active' && load());
+    return () => {
+      live = false;
+      unsubscribe();
+      subscription.remove();
+    };
+  }, [date]);
+
+  return hours;
+}

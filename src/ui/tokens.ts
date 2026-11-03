@@ -25,18 +25,6 @@ const lightArt = {
   blush: '#F2998C',
   eye: '#2B1A12',
   shine: '#FFFFFF',
-  pine: '#3F7346',
-  stone: '#C2B7A5',
-  stoneDeep: '#A3967F',
-  ridge: '#B7C8DA',
-  ridgeDeep: '#9DB2C8',
-  night: '#1B2440',
-  trail: '#F0DDB4',
-  groundBamboo: '#C8E0A2',
-  groundMeadow: '#D9E8AC',
-  groundForest: '#B4D49B',
-  groundRock: '#DFD5C4',
-  groundSnow: '#EEF3F8',
 };
 
 export type ArtPalette = typeof lightArt;
@@ -51,12 +39,19 @@ const darkArt: ArtPalette = {
 export type Theme = {
   scheme: 'light' | 'dark';
   background: string;
-  surface: string;
-  surfaceRaised: string;
+  /** Buttons, chips and empty states that sit on the background. */
+  fill: string;
+  hairline: string;
   text: string;
   textMuted: string;
-  accent: string;
-  track: string;
+  /** The streak badge and today's ring. */
+  blue: string;
+  /** A met goal: week circles and chart bars. */
+  orange: string;
+  orangeSoft: string;
+  /** The unfilled panda, with a second tone where the art uses its deeper colours. */
+  silhouette: string;
+  silhouetteDeep: string;
   shadow: string;
   art: ArtPalette;
 };
@@ -64,25 +59,31 @@ export type Theme = {
 export const themes: Record<Theme['scheme'], Theme> = {
   light: {
     scheme: 'light',
-    background: '#FFF6E9',
-    surface: '#FBEBD5',
-    surfaceRaised: '#F5DFC2',
-    text: lightArt.brown,
-    textMuted: '#7A5A48',
-    accent: lightArt.rust,
-    track: '#F0DEC4',
-    shadow: '#7A4A2A',
+    background: '#FFFFFF',
+    fill: '#F3F3F6',
+    hairline: '#E6E6EB',
+    text: '#17171C',
+    textMuted: '#8A8A93',
+    blue: '#2E7BFF',
+    orange: '#FF6A1F',
+    orangeSoft: '#FFD8C2',
+    silhouette: '#EEEEF2',
+    silhouetteDeep: '#E0E0E7',
+    shadow: '#1B1B3A',
     art: lightArt,
   },
   dark: {
     scheme: 'dark',
-    background: '#1D1511',
-    surface: '#2A1F19',
-    surfaceRaised: '#372821',
-    text: '#F8EBDC',
-    textMuted: '#C4A893',
-    accent: lightArt.orange,
-    track: '#45332A',
+    background: '#0E0E11',
+    fill: '#1E1E24',
+    hairline: '#2C2C33',
+    text: '#F5F5F7',
+    textMuted: '#9A9AA3',
+    blue: '#4C8DFF',
+    orange: '#FF7A33',
+    orangeSoft: '#5A2E1A',
+    silhouette: '#24242B',
+    silhouetteDeep: '#2F2F38',
     shadow: '#000000',
     art: darkArt,
   },
@@ -98,6 +99,12 @@ export function useTheme(): Theme {
   return themes[useContext(SchemeOverride) ?? system];
 }
 
+const ArtOverride = createContext<ArtPalette | null>(null);
+
+/** Repaints every illustration in a subtree, e.g. one flat colour for a silhouette. */
+export const ArtPaletteScope = ArtOverride.Provider;
+
 export function useArt(): ArtPalette {
-  return useTheme().art;
+  const theme = useTheme();
+  return useContext(ArtOverride) ?? theme.art;
 }

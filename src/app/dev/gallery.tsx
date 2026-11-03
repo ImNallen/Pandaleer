@@ -2,23 +2,15 @@ import { Redirect } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { Campfire } from '@/art/Campfire';
 import { Panda, type Expression, type PandaPose } from '@/art/panda/Panda';
-import type { Campfire as CampfireState } from '@/game/game';
+import { PandaFill } from '@/components/PandaFill';
 import { SchemeScope, themes, useTheme, type Theme } from '@/ui/tokens';
 
-const POSES: PandaPose[] = ['sleeping', 'packing', 'walking', 'flag', 'celebrating'];
+const POSES: PandaPose[] = ['standing', 'sleeping', 'packing', 'walking', 'flag', 'celebrating'];
 const EXPRESSIONS: Expression[] = ['content', 'excited', 'sleepy'];
 const SMALL_SIZES = [40, 64, 96];
 const TILE = 132;
-const FIRES: { label: string; fire: CampfireState }[] = [
-  { label: 'unlit', fire: { kind: 'unlit' } },
-  { label: '1 day', fire: { kind: 'burning', days: 1, litToday: true } },
-  { label: '3 days', fire: { kind: 'burning', days: 3, litToday: true } },
-  { label: '7 days', fire: { kind: 'burning', days: 7, litToday: true } },
-  { label: '14+ days', fire: { kind: 'burning', days: 14, litToday: true } },
-  { label: 'embers', fire: { kind: 'embers', lastStreak: 5 } },
-];
+const FILLS = [0, 0.25, 0.5, 0.75, 1];
 
 export default function ArtGallery() {
   if (!__DEV__) return <Redirect href="/" />;
@@ -48,7 +40,7 @@ function Gallery() {
 
 function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
   return (
-    <View style={[styles.board, { backgroundColor: theme.background, borderColor: theme.track }]}>
+    <View style={[styles.board, { backgroundColor: theme.background, borderColor: theme.hairline }]}>
       <Text style={[styles.boardTitle, { color: theme.text }]}>{theme.scheme === 'light' ? 'Light' : 'Dark'}</Text>
 
       <Section title="Poses" theme={theme}>
@@ -67,10 +59,10 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
         ))}
       </Section>
 
-      <Section title="Campfire" theme={theme}>
-        {FIRES.map(({ label, fire }) => (
-          <Tile key={label} label={label} theme={theme}>
-            <Campfire fire={fire} size={TILE} animated={animated} />
+      <Section title="Filling up" theme={theme}>
+        {FILLS.map((progress) => (
+          <Tile key={progress} label={`${progress * 100}%`} theme={theme}>
+            <PandaFill progress={progress} size={TILE} celebrating={false} />
           </Tile>
         ))}
       </Section>
@@ -97,7 +89,7 @@ function Section({ title, theme, children }: { title: string; theme: Theme; chil
 
 function Tile({ label, theme, children }: { label: string; theme: Theme; children: React.ReactNode }) {
   return (
-    <View style={[styles.tile, { backgroundColor: theme.surface, shadowColor: theme.shadow }]}>
+    <View style={[styles.tile, { backgroundColor: theme.fill, shadowColor: theme.shadow }]}>
       {children}
       <Text style={[styles.tileLabel, { color: theme.textMuted }]}>{label}</Text>
     </View>

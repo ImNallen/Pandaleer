@@ -6,7 +6,7 @@ import { useArt, type ArtPalette } from '@/ui/tokens';
 import { AnimatedG, liftAndSquash, rotateAbout, translate, useArtClock, wave, type Matrix } from '../motion';
 import { Head, type Expression } from './Head';
 
-export type PandaPose = 'sleeping' | 'packing' | 'walking' | 'flag' | 'celebrating';
+export type PandaPose = 'standing' | 'sleeping' | 'packing' | 'walking' | 'flag' | 'celebrating';
 export type { Expression };
 
 type Props = {
@@ -16,8 +16,8 @@ type Props = {
   animated?: boolean;
 };
 
-type Motion = 'breathe' | 'walk' | 'hop';
-type Prop = 'map' | 'stick' | 'flag' | 'sparkles';
+type Motion = 'still' | 'breathe' | 'walk' | 'hop';
+type Prop = 'none' | 'map' | 'stick' | 'flag' | 'sparkles';
 
 type StandingSpec = {
   /** Arm angles in degrees outward from hanging straight down; 'swing' animates while walking. */
@@ -30,6 +30,12 @@ type StandingSpec = {
 type PoseSpec = { label: string; expression: Expression } & ({ scene: 'tent' } | { scene: 'standing'; spec: StandingSpec });
 
 const POSES: Record<PandaPose, PoseSpec> = {
+  standing: {
+    label: 'standing ready to walk',
+    expression: 'content',
+    scene: 'standing',
+    spec: { arms: [14, 14], prop: 'none', motion: 'still', x: 120 },
+  },
   sleeping: { label: 'asleep in a tent', expression: 'sleepy', scene: 'tent' },
   packing: {
     label: 'packing up and reading the map',
@@ -61,14 +67,19 @@ const GROUND = 208;
 const BODY_Y = 168;
 
 export function Panda({ pose, expression, size, animated = false }: Props) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 240 240" accessibilityRole="image" accessibilityLabel={`Red panda explorer ${POSES[pose].label}`}>
+      <PandaArt pose={pose} expression={expression} animated={animated} />
+    </Svg>
+  );
+}
+
+/** The panda without its own <Svg>, for drawing inside another 240 × 240 canvas. */
+export function PandaArt({ pose, expression, animated = false }: Omit<Props, 'size'>) {
   const time = useArtClock(animated);
   const spec = POSES[pose];
   const face = expression ?? spec.expression;
-  return (
-    <Svg width={size} height={size} viewBox="0 0 240 240" accessibilityRole="image" accessibilityLabel={`Red panda explorer ${spec.label}`}>
-      {spec.scene === 'tent' ? <TentScene time={time} /> : <StandingScene spec={spec.spec} expression={face} time={time} />}
-    </Svg>
-  );
+  return spec.scene === 'tent' ? <TentScene time={time} /> : <StandingScene spec={spec.spec} expression={face} time={time} />;
 }
 
 function StandingScene({ spec, expression, time }: { spec: StandingSpec; expression: Expression; time: SharedValue<number> }) {
@@ -116,16 +127,19 @@ function characterMatrix(motion: Motion, t: number): Matrix {
     const lift = t > 0 && phase < 0.55 ? Math.sin((phase / 0.55) * Math.PI) * 18 : 0;
     return liftAndSquash(-lift, 1, GROUND);
   }
+  if (motion === 'still') return liftAndSquash(0, 1, GROUND);
   return liftAndSquash(0, 1 + 0.018 * wave(t, 3.4), GROUND);
 }
 
 const AnimatedEllipse = Animated.createAnimatedComponent(Ellipse);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
+const TAIL_SWAY: Record<Motion, number> = { still: 0, breathe: 6, walk: 9, hop: 6 };
+
 function Tail({ time, motion }: { time: SharedValue<number>; motion: Motion }) {
   const palette = useArt();
   const sway = useAnimatedProps(() => ({
-    matrix: rotateAbout((motion === 'walk' ? 9 : 6) * wave(time.value, motion === 'walk' ? 1.1 : 2.6), -14, 18),
+    matrix: rotateAbout(TAIL_SWAY[motion] * wave(time.value, motion === 'walk' ? 1.1 : 2.6), -14, 18),
   }));
   const d = 'M -12 20 C -46 34 -72 14 -62 -20';
   return (

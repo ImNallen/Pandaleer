@@ -5,13 +5,21 @@ import { acknowledgeGoal, type GoalCelebratedOn } from '@/game/celebration';
 import type { GameState } from '@/game/game';
 import { zustandStorage } from '@/storage';
 
-type State = { goalCelebratedOn: GoalCelebratedOn; acknowledge: (game: GameState) => void };
+type State = {
+  goalCelebratedOn: GoalCelebratedOn;
+  /** True while the celebration plays; never persisted. */
+  celebrating: boolean;
+  celebrate: (game: GameState) => void;
+  finish: () => void;
+};
 
 export const useCelebrations = create<State>()(
   persist(
     (set, get) => ({
       goalCelebratedOn: null,
-      acknowledge: (game) => set({ goalCelebratedOn: acknowledgeGoal(game, get().goalCelebratedOn) }),
+      celebrating: false,
+      celebrate: (game) => set({ goalCelebratedOn: acknowledgeGoal(game, get().goalCelebratedOn), celebrating: true }),
+      finish: () => set({ celebrating: false }),
     }),
     {
       name: 'celebrations',

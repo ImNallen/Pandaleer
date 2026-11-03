@@ -6,7 +6,7 @@ const VARIANTS = {
   display: { fontSize: 56, fontWeight: '800', letterSpacing: -1 },
   title: { fontSize: 30, fontWeight: '800' },
   heading: { fontSize: 20, fontWeight: '700' },
-  body: { fontSize: 17, fontWeight: '500', lineHeight: 23 },
+  body: { fontSize: 17, fontWeight: '500' },
   caption: { fontSize: 14, fontWeight: '600' },
 } as const;
 

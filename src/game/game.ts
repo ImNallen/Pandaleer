@@ -1,4 +1,4 @@
-import { addDays, type LocalDate } from './date.ts';
+import { addDays, weekStart, type LocalDate } from './date.ts';
 
 export type DailyTotals = Readonly<Partial<Record<LocalDate, number>>>;
 
@@ -14,13 +14,6 @@ export type GameInput = {
   readonly journeyStart: LocalDate;
 };
 
-export type Pose = 'sleeping' | 'packing' | 'walking' | 'flag';
-
-export type Campfire =
-  | { readonly kind: 'unlit' }
-  | { readonly kind: 'burning'; readonly days: number; readonly litToday: boolean }
-  | { readonly kind: 'embers'; readonly lastStreak: number };
-
 export type Day = {
   readonly date: LocalDate;
   readonly steps: number;
@@ -28,20 +21,18 @@ export type Day = {
   readonly met: boolean;
 };
 
-export type GameState = {
-  readonly today: Day & { readonly pose: Pose };
-  readonly campfire: Campfire;
-  /** Every day from the journey start through today, oldest first. */
-  readonly days: readonly Day[];
-};
+/** `unknown` is a day before the journey started, so there are no steps to judge. */
+export type WeekDayState = 'met' | 'missed' | 'today' | 'upcoming' | 'unknown';
 
-// Checked top to bottom: the first row where steps >= goal * quarters / 4 wins.
-const POSES: readonly { quarters: number; pose: Pose }[] = [
-  { quarters: 4, pose: 'flag' },
-  { quarters: 2, pose: 'walking' },
-  { quarters: 1, pose: 'packing' },
-  { quarters: 0, pose: 'sleeping' },
-];
+export type WeekDay = Day & { readonly state: WeekDayState };
+
+export type GameState = {
+  readonly today: Day;
+  /** Goal-met days in a row, ending today if today is met, otherwise yesterday. */
+  readonly streak: number;
+  /** Monday to Sunday of the current week. */
+  readonly week: readonly WeekDay[];
+};
 
 export function goalOn(history: GoalHistory, date: LocalDate): number {
   let goal = history[0].goal;
@@ -68,29 +59,17 @@ export function computeGame({ today, dailyTotals, goalHistory, journeyStart }: G
   };
 
   const todayDay = dayOn(today);
-  const pose = POSES.find((row) => todayDay.steps * 4 >= todayDay.goal * row.quarters)!.pose;
+  let streak = 0;
+  for (let date = addDays(today, -1); date >= journeyStart && dayOn(date).met; date = addDays(date, -1)) streak++;
+  if (today >= journeyStart && todayDay.met) streak++;
 
-  const days: Day[] = [];
-  for (let date = journeyStart; date <= today; date = addDays(date, 1)) days.push(dayOn(date));
+  const monday = weekStart(today);
+  const week = Array.from({ length: 7 }, (_, i): WeekDay => {
+    const day = dayOn(addDays(monday, i));
+    const state: WeekDayState =
+      day.date > today ? 'upcoming' : day.date < journeyStart ? 'unknown' : day.met ? 'met' : day.date === today ? 'today' : 'missed';
+    return { ...day, state };
+  });
 
-  return { today: { ...todayDay, pose }, campfire: campfire(days), days };
-}
-
-/** `days` runs oldest to newest and ends with today when today is on the journey. */
-function campfire(days: readonly Day[]): Campfire {
-  const today = days.at(-1);
-  const litToday = today?.met ?? false;
-  const past = days.slice(0, -1);
-
-  let run = 0;
-  for (let i = past.length - 1; i >= 0 && past[i].met; i--) run++;
-  if (run + (litToday ? 1 : 0) > 0) return { kind: 'burning', days: run + (litToday ? 1 : 0), litToday };
-
-  for (let i = past.length - 2; i >= 0; i--) {
-    if (!past[i].met) continue;
-    let lastStreak = 0;
-    for (let k = i; k >= 0 && past[k].met; k--) lastStreak++;
-    return { kind: 'embers', lastStreak };
-  }
-  return { kind: 'unlit' };
+  return { today: todayDay, streak, week };
 }
