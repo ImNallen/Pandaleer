@@ -3,13 +3,14 @@ import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
-import Animated, { FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Confetti } from '@/components/Confetti';
 import { DayCard } from '@/components/DayCard';
 import { PandaFill } from '@/components/PandaFill';
 import { StepCount } from '@/components/StepCount';
+import { StreakBadge } from '@/components/StreakBadge';
 import { WeekCard } from '@/components/WeekCard';
 import { shouldCelebrateGoal } from '@/game/celebration';
 import type { GameState } from '@/game/game';
@@ -18,7 +19,6 @@ import { DEFAULT_GOAL, useSettings } from '@/state/settings';
 import { useGame, useHourlySteps } from '@/state/useGame';
 import { useToday } from '@/time/today';
 import { PressableScale } from '@/ui/PressableScale';
-import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
 /** The day card only earns its place when the panda still gets this much room. */
@@ -48,7 +48,7 @@ function HomeContent({ game }: { game: GameState }) {
   return (
     <View style={[styles.flex, styles.screen, { paddingTop: insets.top + 4, paddingBottom: insets.bottom + 8 }]}>
       <Animated.View entering={enter(0)}>
-        <Header streak={game.streak} />
+        <Header streak={game.streak} litToday={game.today.met} />
       </Animated.View>
       <Animated.View entering={enter(1)} style={styles.count}>
         <StepCount steps={game.today.steps} goal={game.today.goal} />
@@ -69,11 +69,11 @@ function HomeContent({ game }: { game: GameState }) {
   );
 }
 
-function Header({ streak }: { streak: number }) {
+function Header({ streak, litToday }: { streak: number; litToday: boolean }) {
   const theme = useTheme();
   return (
     <View style={styles.header}>
-      <StreakBadge streak={streak} />
+      <StreakBadge streak={streak} litToday={litToday} />
       <PressableScale
         accessibilityRole="button"
         accessibilityLabel="Settings"
@@ -82,27 +82,6 @@ function Header({ streak }: { streak: number }) {
         <SymbolView name="gearshape.fill" size={16} tintColor={theme.textMuted} />
       </PressableScale>
     </View>
-  );
-}
-
-function StreakBadge({ streak }: { streak: number }) {
-  const theme = useTheme();
-  const scale = useSharedValue(1);
-
-  useEffect(() => {
-    scale.value = withSequence(withSpring(1.25, { damping: 6 }), withSpring(1, { damping: 10 }));
-  }, [streak, scale]);
-
-  const pop = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  return (
-    <Animated.View
-      accessible
-      accessibilityLabel={streak === 1 ? '1-day streak' : `${streak}-day streak`}
-      style={[styles.streakBadge, { backgroundColor: theme.blue.strong, borderColor: theme.background, shadowColor: theme.blue.light }, pop]}>
-      <Text style={styles.streak} maxFontSizeMultiplier={1.2}>
-        {streak}
-      </Text>
-    </Animated.View>
   );
 }
 
@@ -130,19 +109,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   screen: { paddingHorizontal: 20 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 48 },
-  streakBadge: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  streak: { color: '#FFFFFF', fontSize: 17, fontWeight: '800' },
-  settings: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  settings: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   count: { marginTop: -2 },
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   dayCard: { marginTop: 12 },
