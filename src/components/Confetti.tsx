@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
-import { useArt, type ArtPalette } from '@/ui/tokens';
+import { useTheme, type Theme } from '@/ui/tokens';
 
-const COLORS: (keyof ArtPalette)[] = ['rust', 'orange', 'fire', 'bamboo', 'mist', 'cream'];
+const COLORS: (keyof Theme)[] = ['orange', 'blue', 'green', 'sky', 'water', 'orangeSoft'];
 const PIECES = Array.from({ length: 28 }, (_, i) => ({
   x: ((i * 37) % 100) / 100,
   delay: (i * 53) % 600,
@@ -27,7 +27,7 @@ export function Confetti() {
 }
 
 function Piece({ x, delay, drift, spin, color, wide }: (typeof PIECES)[number]) {
-  const palette = useArt();
+  const theme = useTheme();
   const { width, height } = useWindowDimensions();
   const fall = useSharedValue(0);
 
@@ -46,7 +46,7 @@ function Piece({ x, delay, drift, spin, color, wide }: (typeof PIECES)[number]) 
 
   return (
     <Animated.View
-      style={[{ position: 'absolute', width: wide ? 14 : 9, height: wide ? 8 : 12, borderRadius: 3, backgroundColor: palette[color] }, style]}
+      style={[{ position: 'absolute', width: wide ? 14 : 9, height: wide ? 8 : 12, borderRadius: 3, backgroundColor: theme[color] as string }, style]}
     />
   );
 }
