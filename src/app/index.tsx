@@ -98,7 +98,7 @@ function StreakBadge({ streak }: { streak: number }) {
     <Animated.View
       accessible
       accessibilityLabel={streak === 1 ? '1-day streak' : `${streak}-day streak`}
-      style={[styles.streakBadge, { backgroundColor: theme.blue, borderColor: theme.background, shadowColor: theme.blue }, pop]}>
+      style={[styles.streakBadge, { backgroundColor: theme.blue.strong, borderColor: theme.background, shadowColor: theme.blue.light }, pop]}>
       <Text style={styles.streak} maxFontSizeMultiplier={1.2}>
         {streak}
       </Text>

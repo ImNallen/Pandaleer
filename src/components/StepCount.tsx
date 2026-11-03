@@ -15,8 +15,8 @@ export function StepCount({ steps, goal }: { steps: number; goal: number }) {
   return (
     <View style={styles.container} accessible accessibilityLabel={`${steps.toLocaleString()} steps, ${percent}% of your goal of ${goal.toLocaleString()}`}>
       <View style={styles.row}>
-        <SymbolView name="shoeprints.fill" size={26} tintColor={theme.sky} style={styles.icon} />
-        <Text style={[styles.steps, { color: theme.sky }]} maxFontSizeMultiplier={1.25}>
+        <SymbolView name="shoeprints.fill" size={26} tintColor={theme.blue.strong} style={styles.icon} />
+        <Text style={[styles.steps, { color: theme.blue.strong }]} maxFontSizeMultiplier={1.25}>
           {shown.toLocaleString()}
         </Text>
       </View>

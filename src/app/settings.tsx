@@ -72,7 +72,7 @@ function RoundButton({ symbol, label, disabled, onPress }: { symbol: 'plus' | 'm
       accessibilityLabel={label}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.round, { backgroundColor: theme.orange, opacity: disabled ? 0.35 : 1, transform: [{ scale: pressed ? 0.9 : 1 }] }]}>
+      style={({ pressed }) => [styles.round, { backgroundColor: theme.blue.strong, opacity: disabled ? 0.35 : 1, transform: [{ scale: pressed ? 0.9 : 1 }] }]}>
       <SymbolView name={symbol} size={20} weight="bold" tintColor="#FFFFFF" />
     </Pressable>
   );
@@ -96,7 +96,7 @@ function DevLinks() {
         ] as const
       ).map(([title, href]) => (
         <Pressable key={href} accessibilityRole="button" onPress={() => open(href)} style={styles.devRow}>
-          <Text style={{ color: theme.blue, fontWeight: '600' }}>{title}</Text>
+          <Text style={{ color: theme.blue.strong, fontWeight: '600' }}>{title}</Text>
         </Pressable>
       ))}
     </View>

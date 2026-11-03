@@ -35,15 +35,15 @@ export function PandaFill({ progress, size, celebrating, animated = true }: Prop
       accessibilityLabel={full ? 'The red panda is full: goal reached!' : `The red panda is ${percent}% full`}>
       <Group transform={[{ scale: size / 240 }]}>
         {full ? (
-          <PandaSilhouette color={theme.water} rings={theme.waterRing} time={time} cheering={celebrating} />
+          <PandaSilhouette color={theme.blue.light} rings={theme.ring} time={time} cheering={celebrating} />
         ) : (
           <>
             <PandaSilhouette color={theme.silhouette} rings={theme.silhouetteRing} time={time} cheering={false} />
             <Group clip={backSurface}>
-              <PandaSilhouette color={theme.waterSoft} time={time} cheering={false} />
+              <PandaSilhouette color={theme.blue.soft} time={time} cheering={false} />
             </Group>
             <Group clip={surface}>
-              <PandaSilhouette color={theme.water} rings={theme.waterRing} time={time} cheering={false} />
+              <PandaSilhouette color={theme.blue.light} rings={theme.ring} time={time} cheering={false} />
             </Group>
           </>
         )}

@@ -4,13 +4,20 @@ import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, w
 
 import { useTheme, type Theme } from '@/ui/tokens';
 
-const COLORS: (keyof Theme)[] = ['orange', 'blue', 'green', 'sky', 'water', 'orangeSoft'];
+const SHADES: { scale: 'blue' | 'green'; tone: keyof Theme['blue'] }[] = [
+  { scale: 'blue', tone: 'strong' },
+  { scale: 'blue', tone: 'light' },
+  { scale: 'blue', tone: 'soft' },
+  { scale: 'green', tone: 'light' },
+  { scale: 'green', tone: 'strong' },
+];
+
 const PIECES = Array.from({ length: 28 }, (_, i) => ({
   x: ((i * 37) % 100) / 100,
   delay: (i * 53) % 600,
   drift: ((i * 29) % 40) - 20,
   spin: 180 + ((i * 71) % 360),
-  color: COLORS[i % COLORS.length],
+  shade: SHADES[i % SHADES.length],
   wide: i % 3 === 0,
 }));
 
@@ -26,7 +33,7 @@ export function Confetti() {
   );
 }
 
-function Piece({ x, delay, drift, spin, color, wide }: (typeof PIECES)[number]) {
+function Piece({ x, delay, drift, spin, shade, wide }: (typeof PIECES)[number]) {
   const theme = useTheme();
   const { width, height } = useWindowDimensions();
   const fall = useSharedValue(0);
@@ -46,7 +53,7 @@ function Piece({ x, delay, drift, spin, color, wide }: (typeof PIECES)[number]) 
 
   return (
     <Animated.View
-      style={[{ position: 'absolute', width: wide ? 14 : 9, height: wide ? 8 : 12, borderRadius: 3, backgroundColor: theme[color] as string }, style]}
+      style={[{ position: 'absolute', width: wide ? 14 : 9, height: wide ? 8 : 12, borderRadius: 3, backgroundColor: theme[shade.scale][shade.tone] }, style]}
     />
   );
 }

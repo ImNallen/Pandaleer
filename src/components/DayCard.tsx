@@ -24,7 +24,7 @@ export function DayCard({ hours, currentHour }: { hours: readonly number[]; curr
 
   return (
     <View
-      style={[styles.card, { backgroundColor: theme.dayCard }]}
+      style={[styles.card, { backgroundColor: theme.green.faint }]}
       accessible
       accessibilityLabel={bars[busiest] > 0 ? `Your day: you walked most around ${hourName(busiest * HOURS_PER_BAR)}.` : 'Your day: no steps yet.'}>
       <Text style={styles.title}>Your day</Text>
@@ -55,7 +55,7 @@ function Bar({ index, share, current }: { index: number; share: number; current:
   const style = useAnimatedStyle(() => ({ height: Math.max(6, grow.value * BAR_HEIGHT) }));
   return (
     <View style={styles.slot}>
-      <Animated.View style={[styles.bar, { backgroundColor: current || share > 0 ? theme.green : theme.greenSoft, opacity: current || share === 0 ? 1 : 0.75 }, style]} />
+      <Animated.View style={[styles.bar, { backgroundColor: current ? theme.green.strong : share > 0 ? theme.green.light : theme.green.soft }, style]} />
     </View>
   );
 }

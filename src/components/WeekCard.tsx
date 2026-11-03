@@ -28,7 +28,7 @@ export function WeekCard({ week }: { week: readonly WeekDay[] }) {
   const picked = week.find((day) => day.date === selected);
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.weekCard }]}>
+    <View style={[styles.card, { backgroundColor: theme.blue.faint }]}>
       <View style={styles.header}>
         <Text style={styles.title}>This week</Text>
         <Text muted style={styles.detail} accessibilityLiveRegion="polite">
@@ -69,12 +69,12 @@ function Capsule({ day, index, selected }: { day: WeekDay; index: number; select
   }, [share, index, fill]);
 
   const level = useAnimatedStyle(() => ({ height: fill.value * CAPSULE.height }));
-  const ring = day.state === 'today' ? theme.blue : selected ? theme.orange : 'transparent';
+  const ring = day.state === 'today' ? theme.blue.strong : selected ? theme.blue.light : 'transparent';
 
   return (
     <View style={[styles.capsuleRing, { borderColor: ring }]}>
-      <View style={[styles.capsule, { backgroundColor: theme.weekTrack, opacity: day.state === 'upcoming' ? 0.55 : 1 }]}>
-        <Animated.View style={[styles.fill, { backgroundColor: day.state === 'today' && !day.met ? theme.blue : theme.orange }, level]} />
+      <View style={[styles.capsule, { backgroundColor: theme.blue.soft, opacity: day.state === 'upcoming' ? 0.5 : 1 }]}>
+        <Animated.View style={[styles.fill, { backgroundColor: day.met ? theme.blue.strong : theme.blue.light }, level]} />
         {day.state === 'met' && (
           <View style={styles.check}>
             <SymbolView name="checkmark" size={13} weight="heavy" tintColor="#FFFFFF" />
