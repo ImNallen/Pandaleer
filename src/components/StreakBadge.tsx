@@ -1,6 +1,6 @@
 import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 import { Text } from '@/ui/Text';
@@ -10,7 +10,6 @@ import { useTheme } from '@/ui/tokens';
 const SIZE = 36;
 const STROKE = 3;
 const RADIUS = (SIZE - STROKE) / 2;
-const CORE = SIZE - 2 * (STROKE + 2.5);
 
 /** A full circle starting at twelve o'clock, so trimming its end draws today's progress clockwise. */
 const ARC = Skia.Path.MakeFromSVGString(
@@ -19,7 +18,7 @@ const ARC = Skia.Path.MakeFromSVGString(
 
 type Props = { streak: number; progress: number };
 
-/** The streak count in a blue circle, ringed by today's progress toward the goal. */
+/** The streak count in a light-blue circle, ringed by today's progress toward the goal. */
 export function StreakBadge({ streak, progress }: Props) {
   const theme = useTheme();
   const scale = useSharedValue(1);
@@ -43,14 +42,13 @@ export function StreakBadge({ streak, progress }: Props) {
       accessibilityLabel={`${days}. Today ${Math.floor(share * 100)}% of your goal.`}
       style={[styles.badge, pop]}>
       <Canvas style={StyleSheet.absoluteFill}>
+        <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} color={theme.blue.light} />
         <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} style="stroke" strokeWidth={STROKE} color={theme.blue.soft} />
         <Path path={ARC} style="stroke" strokeWidth={STROKE} strokeCap="round" color={theme.blue.strong} start={0} end={arc} />
       </Canvas>
-      <View style={[styles.core, { backgroundColor: theme.blue.strong, shadowColor: theme.blue.light }]}>
-        <Text style={styles.count} maxFontSizeMultiplier={1.2}>
-          {streak}
-        </Text>
-      </View>
+      <Text style={styles.count} maxFontSizeMultiplier={1.2}>
+        {streak}
+      </Text>
     </Animated.View>
   );
 }
@@ -62,15 +60,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  core: {
-    width: CORE,
-    height: CORE,
-    borderRadius: CORE / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  count: { color: '#FFFFFF', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  count: { color: '#FFFFFF', fontSize: 15, fontWeight: '900', fontVariant: ['tabular-nums'] },
 });
