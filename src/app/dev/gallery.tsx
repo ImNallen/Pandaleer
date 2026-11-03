@@ -45,6 +45,16 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
     <View style={[styles.board, { backgroundColor: theme.background, borderColor: theme.hairline }]}>
       <Text style={[styles.boardTitle, { color: theme.text }]}>{theme.scheme === 'light' ? 'Light' : 'Dark'}</Text>
 
+      {(['water', 'water-rings'] as const).map((fill) => (
+        <Section key={fill} title={fill === 'water' ? 'Water silhouette' : 'Water silhouette, tail rings'} theme={theme}>
+          {[0.3, 0.65, 1].map((progress) => (
+            <Tile key={progress} label={`${progress * 100}%`} theme={theme} third>
+              <PandaFill progress={progress} size={104} celebrating={false} fill={fill} animated={animated} />
+            </Tile>
+          ))}
+        </Section>
+      ))}
+
       <Section title="Compare styles" theme={theme}>
         {LOOKS.map((look) => (
           <Tile key={look} label={look} theme={theme} third>

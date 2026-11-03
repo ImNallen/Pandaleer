@@ -20,7 +20,7 @@ import { useArt, type ArtPalette } from '@/ui/tokens';
 export type PandaStyle = 'flat' | 'soft' | 'outlined';
 export type PandaMood = 'idle' | 'proud' | 'cheer';
 
-type Props = { mood: PandaMood; look: PandaStyle; time: SharedValue<number> };
+type Props = { mood: PandaMood; look: PandaStyle; time: SharedValue<number>; shadow?: boolean };
 
 /** Feet rest on this line; breathing and hops pivot around it. */
 export const GROUND = 212;
@@ -54,13 +54,13 @@ const SHAPES = {
 const mirror = [{ translateX: 2 * CX }, { scaleX: -1 }];
 
 /** The red panda explorer drawn in Skia. Every moving part reads the same clock, so copies of the scene stay in step. */
-export function PandaScene({ mood, look, time }: Props) {
+export function PandaScene({ mood, look, time, shadow = true }: Props) {
   const palette = useArt();
   const scene = <Character mood={mood} look={look} time={time} palette={palette} />;
   const outline = look === 'outlined' ? { radius: 3.2, color: palette.brown } : { radius: 2, color: palette.halo };
   return (
     <>
-      <GroundShadow mood={mood} time={time} palette={palette} />
+      {shadow && <GroundShadow mood={mood} time={time} palette={palette} />}
       <Group
         layer={
           <Paint>

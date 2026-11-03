@@ -61,6 +61,12 @@ export type Theme = {
   dayCard: string;
   green: string;
   greenSoft: string;
+  /** The silhouette panda's water: the front wave and the lighter wave behind it. */
+  water: string;
+  waterSoft: string;
+  /** Tone-on-tone tail rings on the water and on the empty silhouette. */
+  waterRing: string;
+  silhouetteRing: string;
   /** The unfilled panda, with a second tone where the art uses its deeper colours. */
   silhouette: string;
   silhouetteDeep: string;
@@ -80,6 +86,10 @@ export const themes: Record<Theme['scheme'], Theme> = {
     orange: '#FF6A1F',
     orangeSoft: '#FFD8C2',
     sky: '#1E90FF',
+    water: '#5DB3FF',
+    waterSoft: '#B5DCFF',
+    waterRing: '#45A3F5',
+    silhouetteRing: '#E1E1E8',
     weekCard: '#FFF4EC',
     weekTrack: '#FFE3D1',
     dayCard: '#EAF8EE',
@@ -101,6 +111,10 @@ export const themes: Record<Theme['scheme'], Theme> = {
     orange: '#FF7A33',
     orangeSoft: '#5A2E1A',
     sky: '#5AB0FF',
+    water: '#4C9BFF',
+    waterSoft: '#28507F',
+    waterRing: '#3A86E6',
+    silhouetteRing: '#2D2D35',
     weekCard: '#211915',
     weekTrack: '#3A2A20',
     dayCard: '#14231A',

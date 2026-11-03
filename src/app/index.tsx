@@ -54,7 +54,7 @@ function HomeContent({ game }: { game: GameState }) {
         <StepCount steps={game.today.steps} goal={game.today.goal} />
       </Animated.View>
       <Animated.View entering={FadeIn.delay(200).duration(700)} style={styles.stage} onLayout={(event: LayoutChangeEvent) => setStage(event.nativeEvent.layout)}>
-        {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} celebrating={celebrating} />}
+        {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} celebrating={celebrating} fill="water-rings" />}
       </Animated.View>
       <Animated.View entering={enter(3)}>
         <WeekCard week={game.week} />
