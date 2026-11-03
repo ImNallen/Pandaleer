@@ -2,14 +2,13 @@ import { Canvas, Group, Skia, type SkPath } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
 import { Easing, SensorType, useAnimatedSensor, useDerivedValue, useFrameCallback, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { PandaSilhouette } from '@/art/skia/PandaSilhouette';
+import { PANDA_BOUNDS, RedPanda, silhouetteOf } from '@/art/skia/RedPanda';
 import { sloshStep, STILL, surfaceSlope, type Slosh } from '@/art/skia/slosh';
 import { useSceneClock } from '@/art/skia/useSceneClock';
 import { useTheme } from '@/ui/tokens';
 
-/** The silhouette spans from the tips of its ears to the soles of its feet. */
-const TOP = 46;
-const BOTTOM = 212;
+const TOP = PANDA_BOUNDS.top;
+const BOTTOM = PANDA_BOUNDS.bottom;
 
 type Props = { progress: number; size: number; celebrating: boolean; animated?: boolean };
 
@@ -37,15 +36,15 @@ export function PandaFill({ progress, size, celebrating, animated = true }: Prop
       accessibilityLabel={full ? 'The red panda is full: goal reached!' : `The red panda is ${percent}% full`}>
       <Group transform={[{ scale: size / 240 }]}>
         {full ? (
-          <PandaSilhouette color={theme.blue.light} rings={theme.ring} time={time} cheering={celebrating} />
+          <RedPanda colors={silhouetteOf(theme.blue.light, theme.ring)} motion={celebrating ? 'cheer' : 'walk'} time={time} />
         ) : (
           <>
-            <PandaSilhouette color={theme.silhouette} rings={theme.silhouetteRing} time={time} cheering={false} />
+            <RedPanda colors={silhouetteOf(theme.silhouette, theme.silhouetteRing)} motion="idle" time={time} />
             <Group clip={backSurface}>
-              <PandaSilhouette color={theme.blue.soft} time={time} cheering={false} />
+              <RedPanda colors={silhouetteOf(theme.blue.soft, theme.blue.soft)} motion="idle" time={time} />
             </Group>
             <Group clip={surface}>
-              <PandaSilhouette color={theme.blue.light} rings={theme.ring} time={time} cheering={false} />
+              <RedPanda colors={silhouetteOf(theme.blue.light, theme.ring)} motion="idle" time={time} />
             </Group>
           </>
         )}

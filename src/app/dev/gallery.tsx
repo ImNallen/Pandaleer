@@ -1,11 +1,16 @@
+import { Canvas, Group } from '@shopify/react-native-skia';
 import { Redirect } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
+import { RED_PANDA, RedPanda, type PandaMotion } from '@/art/skia/RedPanda';
+import { useSceneClock } from '@/art/skia/useSceneClock';
+import { Logo } from '@/components/Logo';
 import { PandaFill } from '@/components/PandaFill';
 import { SchemeScope, themes, useTheme, type Theme } from '@/ui/tokens';
 
-const FILLS = [0, 0.3, 0.65, 1];
+const FILLS = [0, 0.4, 0.75, 1];
+const MOTIONS: PandaMotion[] = ['idle', 'walk', 'cheer'];
 const TILE = 104;
 
 export default function ArtGallery() {
@@ -35,7 +40,13 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
   return (
     <View style={[styles.board, { backgroundColor: theme.background, borderColor: theme.hairline }]}>
       <Text style={[styles.boardTitle, { color: theme.text }]}>{theme.scheme === 'light' ? 'Light' : 'Dark'}</Text>
+      <Logo size={96} animated={animated} />
       <View style={styles.grid}>
+        {MOTIONS.map((motion) => (
+          <Tile key={motion} label={motion} theme={theme}>
+            <ColourPanda motion={motion} animated={animated} />
+          </Tile>
+        ))}
         {FILLS.map((progress) => (
           <Tile key={progress} label={`${progress * 100}%`} theme={theme}>
             <PandaFill progress={progress} size={TILE} celebrating={false} animated={animated} />
@@ -46,6 +57,17 @@ function Board({ theme, animated }: { theme: Theme; animated: boolean }) {
         </Tile>
       </View>
     </View>
+  );
+}
+
+function ColourPanda({ motion, animated }: { motion: PandaMotion; animated: boolean }) {
+  const time = useSceneClock(animated);
+  return (
+    <Canvas style={{ width: TILE, height: TILE }}>
+      <Group transform={[{ scale: TILE / 240 }]}>
+        <RedPanda colors={RED_PANDA} motion={motion} time={time} />
+      </Group>
+    </Canvas>
   );
 }
 
