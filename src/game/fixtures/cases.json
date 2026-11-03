@@ -1,0 +1,1559 @@
+{
+  "about": "computeGame(input) must deep-equal expected. week runs Monday to Sunday of the week holding today.",
+  "cases": [
+    {
+      "name": "fresh start with no steps",
+      "input": {
+        "today": "2026-03-10",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {}
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-10",
+          "steps": 0,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 0,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "one step short of the goal is not met",
+      "input": {
+        "today": "2026-03-10",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 999
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-10",
+          "steps": 999,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 0,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 999,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meeting the goal exactly counts and starts a streak",
+      "input": {
+        "today": "2026-03-10",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-10",
+          "steps": 1000,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 1,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "crossing midnight starts a fresh day but keeps yesterday's streak",
+      "input": {
+        "today": "2026-03-11",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1200
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-11",
+          "steps": 0,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 1,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1200,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a missed day with no data resets the streak to zero",
+      "input": {
+        "today": "2026-03-13",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1100,
+          "2026-03-13": 200
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-13",
+          "steps": 200,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 0,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1100,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "missed"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 200,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "meeting the goal after a missed day starts a new streak at one",
+      "input": {
+        "today": "2026-03-13",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1100,
+          "2026-03-13": 1000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-13",
+          "steps": 1000,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 1,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1100,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "missed"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "five met days in a row make a five-day streak",
+      "input": {
+        "today": "2026-03-14",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1000,
+          "2026-03-12": 1000,
+          "2026-03-13": 1000,
+          "2026-03-14": 1000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-14",
+          "steps": 1000,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 5,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "days before the journey start do not count for the streak",
+      "input": {
+        "today": "2026-03-13",
+        "journeyStart": "2026-03-12",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 5000,
+          "2026-03-11": 5000,
+          "2026-03-12": 1000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-13",
+          "steps": 0,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 1,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 5000,
+            "goal": 1000,
+            "met": true,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 5000,
+            "goal": 1000,
+            "met": true,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "raising the goal mid-day applies to today only",
+      "input": {
+        "today": "2026-03-12",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          },
+          {
+            "from": "2026-03-12",
+            "goal": 2000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1500,
+          "2026-03-12": 1500
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-12",
+          "steps": 1500,
+          "goal": 2000,
+          "met": false
+        },
+        "streak": 2,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1500,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 1500,
+            "goal": 2000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 2000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 2000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 2000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "lowering the goal mid-day below today's steps meets it",
+      "input": {
+        "today": "2026-03-11",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          },
+          {
+            "from": "2026-03-11",
+            "goal": 500
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 600
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-11",
+          "steps": 600,
+          "goal": 500,
+          "met": true
+        },
+        "streak": 2,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 600,
+            "goal": 500,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 500,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 500,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 500,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 500,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "days before the first goal entry use the first goal",
+      "input": {
+        "today": "2026-03-10",
+        "journeyStart": "2026-03-09",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-09": 1000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-10",
+          "steps": 0,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 1,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "westward flight, before: evening in Stockholm",
+      "input": {
+        "today": "2026-03-12",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1000,
+          "2026-03-12": 400
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-12",
+          "steps": 400,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 2,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 400,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "westward flight, after: same steps re-bucketed in New York, the date moves back",
+      "input": {
+        "today": "2026-03-11",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1400
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-11",
+          "steps": 1400,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 2,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1400,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "eastward flight, before: evening in New York",
+      "input": {
+        "today": "2026-03-11",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1200,
+          "2026-03-11": 1300
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-11",
+          "steps": 1300,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 2,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1200,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1300,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "eastward flight, after: same steps re-bucketed in Tokyo, the date jumps ahead",
+      "input": {
+        "today": "2026-03-12",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1100,
+          "2026-03-11": 1000,
+          "2026-03-12": 400
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-12",
+          "steps": 400,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 2,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1100,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 400,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "eastward flight can re-bucket a met day below goal: the streak is recomputed from the new days",
+      "input": {
+        "today": "2026-03-12",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 700,
+          "2026-03-12": 300
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-12",
+          "steps": 300,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 0,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 700,
+            "goal": 1000,
+            "met": false,
+            "state": "missed"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 300,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "totals dated after today are ignored",
+      "input": {
+        "today": "2026-03-10",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 500,
+          "2026-03-11": 9000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-10",
+          "steps": 500,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 0,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 500,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 9000,
+            "goal": 1000,
+            "met": true,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "today before the journey start shows today's steps but no streak",
+      "input": {
+        "today": "2026-03-11",
+        "journeyStart": "2026-03-12",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-11": 1500
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-11",
+          "steps": 1500,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 0,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 1500,
+            "goal": 1000,
+            "met": true,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a big day after a rest day starts a new streak",
+      "input": {
+        "today": "2026-03-12",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-12": 25000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-12",
+          "steps": 25000,
+          "goal": 1000,
+          "met": true
+        },
+        "streak": 1,
+        "week": [
+          {
+            "date": "2026-03-09",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "unknown"
+          },
+          {
+            "date": "2026-03-10",
+            "steps": 1000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-11",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "missed"
+          },
+          {
+            "date": "2026-03-12",
+            "steps": 25000,
+            "goal": 1000,
+            "met": true,
+            "state": "met"
+          },
+          {
+            "date": "2026-03-13",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-14",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-15",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    },
+    {
+      "name": "the week resets on Monday while the streak carries on",
+      "input": {
+        "today": "2026-03-16",
+        "journeyStart": "2026-03-10",
+        "goalHistory": [
+          {
+            "from": "2026-03-10",
+            "goal": 1000
+          }
+        ],
+        "dailyTotals": {
+          "2026-03-10": 1000,
+          "2026-03-11": 1000,
+          "2026-03-12": 1000,
+          "2026-03-13": 1000,
+          "2026-03-14": 1000,
+          "2026-03-15": 1000
+        }
+      },
+      "expected": {
+        "today": {
+          "date": "2026-03-16",
+          "steps": 0,
+          "goal": 1000,
+          "met": false
+        },
+        "streak": 6,
+        "week": [
+          {
+            "date": "2026-03-16",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "today"
+          },
+          {
+            "date": "2026-03-17",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-18",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-19",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-20",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-21",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          },
+          {
+            "date": "2026-03-22",
+            "steps": 0,
+            "goal": 1000,
+            "met": false,
+            "state": "upcoming"
+          }
+        ]
+      }
+    }
+  ]
+}
