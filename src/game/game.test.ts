@@ -74,6 +74,31 @@ describe('goal celebrations', () => {
     assert.equal(shouldCelebrateGoal(game('2026-03-10', { '2026-03-10': 999 }), null), false);
   });
 
+  test('a goal completed before opening the app remains due until it is acknowledged', () => {
+    const completed = game('2026-03-10', { '2026-03-10': 1800 });
+    const previousDay = d('2026-03-09');
+    assert.equal(shouldCelebrateGoal(completed, previousDay), true);
+    assert.equal(shouldCelebrateGoal(completed, previousDay), true);
+    const acknowledged = acknowledgeGoal(completed, previousDay);
+    assert.equal(shouldCelebrateGoal(completed, acknowledged), false);
+  });
+
+  test('step corrections below and back above the goal do not repeat a revealed celebration', () => {
+    const acknowledged = acknowledgeGoal(game('2026-03-10', { '2026-03-10': 1000 }), null);
+    assert.equal(shouldCelebrateGoal(game('2026-03-10', { '2026-03-10': 900 }), acknowledged), false);
+    assert.equal(shouldCelebrateGoal(game('2026-03-10', { '2026-03-10': 1200 }), acknowledged), false);
+    assert.equal(shouldCelebrateGoal(game('2026-03-11', { '2026-03-11': 1000 }), acknowledged), true);
+  });
+
+  test('changing the same day\'s goal does not repeat a revealed celebration', () => {
+    const today = d('2026-03-10');
+    const acknowledged = acknowledgeGoal(game(today, { [today]: 1000 }), null);
+    for (const goal of [2000, 500]) {
+      const revised = computeGame({ today, dailyTotals: { [today]: 1000 }, goalHistory: [{ from: today, goal }], journeyStart: today });
+      assert.equal(shouldCelebrateGoal(revised, acknowledged), false);
+    }
+  });
+
   test('a date that moves back, like a westward flight, never repeats a celebration', () => {
     const acked = acknowledgeGoal(game('2026-03-11', { '2026-03-11': 1000 }), d('2026-03-10'));
     const backOnMonday = game('2026-03-10', { '2026-03-10': 2000 });

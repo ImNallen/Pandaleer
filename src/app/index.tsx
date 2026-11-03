@@ -1,11 +1,12 @@
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
-import { StyleSheet, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
+import { AppState, StyleSheet, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { PandaPose } from '@/art/skia/pandaPose';
 import { Confetti } from '@/components/Confetti';
 import { DayCard } from '@/components/DayCard';
 import { PandaFill } from '@/components/PandaFill';
@@ -42,7 +43,8 @@ function HomeContent({ game }: { game: GameState }) {
   const { height: screenHeight } = useWindowDimensions();
   const hours = useHourlySteps(game.today.date);
   const [stage, setStage] = useState({ width: 0, height: 0 });
-  const celebrating = useGoalCelebration(game);
+  const [readyPose, setReadyPose] = useState<PandaPose | null>(null);
+  const celebrating = useGoalCelebration(game, readyPose === 'celebrate');
   const pandaSize = Math.min(stage.width, stage.height);
 
   return (
@@ -54,7 +56,7 @@ function HomeContent({ game }: { game: GameState }) {
         <StepCount steps={game.today.steps} goal={game.today.goal} />
       </Animated.View>
       <Animated.View entering={FadeIn.delay(200).duration(700)} style={styles.stage} onLayout={(event: LayoutChangeEvent) => setStage(event.nativeEvent.layout)}>
-        {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} celebrating={celebrating} />}
+        {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} onPoseReady={setReadyPose} />}
       </Animated.View>
       <Animated.View entering={enter(3)}>
         <WeekCard week={game.week} />
@@ -85,10 +87,22 @@ function Header({ streak, progress }: { streak: number; progress: number }) {
   );
 }
 
-/** True for a few seconds the first time today's goal is met: the panda jumps, confetti falls, the phone taps. */
-function useGoalCelebration(game: GameState): boolean {
+function useGoalCelebration(game: GameState, artworkReady: boolean): boolean {
+  const focused = useIsFocused();
+  const [appState, setAppState] = useState(AppState.currentState);
   const { goalCelebratedOn, celebrating, celebrate, finish } = useCelebrations();
-  const due = shouldCelebrateGoal(game, goalCelebratedOn);
+  const visible = focused && appState === 'active';
+  const due = visible && artworkReady && shouldCelebrateGoal(game, goalCelebratedOn);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', setAppState);
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!visible) finish();
+    return finish;
+  }, [visible, finish]);
 
   useEffect(() => {
     if (!due) return;
@@ -102,7 +116,7 @@ function useGoalCelebration(game: GameState): boolean {
     return () => clearTimeout(timer);
   }, [celebrating, finish]);
 
-  return celebrating;
+  return visible && celebrating;
 }
 
 const styles = StyleSheet.create({
