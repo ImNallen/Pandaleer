@@ -6,10 +6,11 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withS
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
-const SIZE = 44;
-const STROKE = 3.5;
+/** Matches the settings button beside it. */
+const SIZE = 36;
+const STROKE = 3;
 const RADIUS = (SIZE - STROKE) / 2;
-const CORE = SIZE - 2 * (STROKE + 3);
+const CORE = SIZE - 2 * (STROKE + 2.5);
 
 /** A full circle starting at twelve o'clock, so trimming its end draws today's progress clockwise. */
 const ARC = Skia.Path.MakeFromSVGString(
@@ -65,5 +66,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
   },
   core: { width: CORE, height: CORE, borderRadius: CORE / 2, alignItems: 'center', justifyContent: 'center' },
-  count: { color: '#FFFFFF', fontSize: 16, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  count: { color: '#FFFFFF', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'] },
 });
