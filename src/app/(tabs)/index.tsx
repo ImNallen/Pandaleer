@@ -1,6 +1,5 @@
-import { Link } from 'expo-router';
-import { useEffect } from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Campfire } from '@/art/Campfire';
@@ -14,9 +13,11 @@ import { useCelebrations } from '@/state/celebrations';
 import { DEFAULT_GOAL, useSettings } from '@/state/settings';
 import { useGame } from '@/state/useGame';
 import { useToday } from '@/time/today';
-import { Card } from '@/ui/Card';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
+
+/** Room the floating native tab bar takes above the home indicator. */
+const TAB_BAR = 70;
 
 export default function Today() {
   const theme = useTheme();
@@ -36,64 +37,62 @@ export default function Today() {
 
 function TodayContent({ game }: { game: GameState }) {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const ring = Math.min(width - 48, 320);
-  const { steps, goal, met: goalMet, pose } = game.today;
+  const [hero, setHero] = useState({ width: 0, height: 0 });
+  const ring = Math.min(hero.width, hero.height, 340);
+  const { steps, goal, met, pose } = game.today;
 
   return (
-    <ScrollView contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 96 }]}>
-      <View>
-        <Text variant="caption" muted>
-          {formatDate(game.today.date)}
-        </Text>
-        <Text variant="title" accessibilityRole="header">
-          Today
-        </Text>
-      </View>
-
-      <View style={styles.hero}>
-        <ProgressRing progress={steps / goal} size={ring} stroke={16} complete={goalMet}>
-          <Panda pose={pose} size={ring * 0.78} animated />
-        </ProgressRing>
-        <View style={styles.count} accessible accessibilityLabel={`${steps.toLocaleString()} of ${goal.toLocaleString()} steps today`}>
-          <Text variant="display" maxFontSizeMultiplier={1.4}>
-            {steps.toLocaleString()}
+    <View style={[styles.screen, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + TAB_BAR }]}>
+      <View style={styles.header}>
+        <View style={styles.flex}>
+          <Text variant="caption" muted maxFontSizeMultiplier={1.6} numberOfLines={1}>
+            {formatDate(game.today.date)}
           </Text>
-          <Text muted>of {goal.toLocaleString()} steps</Text>
+          <Text variant="title" accessibilityRole="header" maxFontSizeMultiplier={1.4}>
+            Today
+          </Text>
         </View>
+        <StreakChip game={game} />
       </View>
 
-      <SpeechBubble line={todayLine(game.today)} />
-      <FireCard game={game} />
+      <View style={styles.hero} onLayout={(event: LayoutChangeEvent) => setHero(event.nativeEvent.layout)}>
+        {ring > 0 && (
+          <ProgressRing progress={steps / goal} size={ring} stroke={Math.max(10, ring * 0.05)} complete={met}>
+            <Panda pose={pose} size={ring * 0.78} animated />
+          </ProgressRing>
+        )}
+      </View>
 
-      {__DEV__ && <DevLinks />}
-    </ScrollView>
-  );
-}
+      <View style={styles.count} accessible accessibilityLabel={`${steps.toLocaleString()} of ${goal.toLocaleString()} steps today`}>
+        <Text variant="display" maxFontSizeMultiplier={1.3}>
+          {steps.toLocaleString()}
+        </Text>
+        <Text muted maxFontSizeMultiplier={1.6}>
+          of {goal.toLocaleString()} steps
+        </Text>
+      </View>
 
-function SpeechBubble({ line }: { line: string }) {
-  const theme = useTheme();
-  return (
-    <View accessible accessibilityLabel={`The panda says: ${line}`}>
-      <View style={[styles.bubbleTail, { borderBottomColor: theme.surface }]} />
-      <Card>
-        <Text>{line}</Text>
-      </Card>
+      <Text style={styles.line} maxFontSizeMultiplier={1.6} accessibilityLabel={`The panda says: ${todayLine(game.today)}`}>
+        {todayLine(game.today)}
+      </Text>
     </View>
   );
 }
 
-function FireCard({ game }: { game: GameState }) {
+function StreakChip({ game }: { game: GameState }) {
+  const theme = useTheme();
   const { title, detail } = fireCopy(game.campfire, game.today.met);
-  const stacked = useWindowDimensions().fontScale >= 1.4;
+  const days = game.campfire.kind === 'burning' ? game.campfire.days : 0;
   return (
-    <Card style={stacked ? styles.gap : styles.row}>
-      <Campfire fire={game.campfire} size={84} animated />
-      <View style={styles.flex} accessible>
-        <Text variant="heading">{title}</Text>
-        <Text muted>{detail}</Text>
-      </View>
-    </Card>
+    <View
+      accessible
+      accessibilityLabel={`${title}. ${detail}`}
+      style={[styles.chip, { backgroundColor: theme.surface, shadowColor: theme.shadow }]}>
+      <Campfire fire={game.campfire} size={40} animated />
+      <Text variant="heading" maxFontSizeMultiplier={1.4}>
+        {days}
+      </Text>
+    </View>
   );
 }
 
@@ -103,47 +102,28 @@ function Celebrations({ game }: { game: GameState }) {
   return <CelebrationOverlay fire={game.campfire} onDone={() => acknowledge(game)} />;
 }
 
-function DevLinks() {
-  const theme = useTheme();
-  return (
-    <View style={styles.row}>
-      <Link href="/dev/steps">
-        <Text variant="caption" style={{ color: theme.accent }}>
-          Mock steps
-        </Text>
-      </Link>
-      <Link href="/dev/gallery">
-        <Text variant="caption" style={{ color: theme.accent }}>
-          Art Gallery
-        </Text>
-      </Link>
-    </View>
-  );
-}
-
 function formatDate(date: string): string {
   const [year, month, day] = date.split('-').map(Number);
   return new Date(year, month - 1, day).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 const styles = StyleSheet.create({
-  content: { paddingHorizontal: 20, gap: 16 },
-  hero: { alignItems: 'center', gap: 4 },
-  count: { alignItems: 'center' },
-  bubbleTail: {
-    alignSelf: 'center',
-    width: 0,
-    height: 0,
-    borderLeftWidth: 12,
-    borderRightWidth: 12,
-    borderBottomWidth: 12,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    marginBottom: -1,
+  screen: { flex: 1, paddingHorizontal: 20, gap: 8 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  flex: { flex: 1 },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    borderRadius: 999,
+    paddingLeft: 6,
+    paddingRight: 14,
+    paddingVertical: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  flex: { flex: 1, gap: 2 },
-  gap: { gap: 6 },
-  track: { height: 12, borderRadius: 6, overflow: 'hidden' },
-  fill: { height: '100%', borderRadius: 6 },
+  hero: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  count: { alignItems: 'center' },
+  line: { textAlign: 'center', paddingHorizontal: 8 },
 });
