@@ -14,7 +14,17 @@ const config: ExpoConfig = {
     appleTeamId: '46BB5R3Y6W',
     supportsTablet: false,
   },
-  plugins: ['expo-router'],
+  plugins: [
+    'expo-router',
+    [
+      '@kingstinct/react-native-healthkit',
+      {
+        NSHealthShareUsageDescription: 'Pandaleer reads your step count to fill your panda and track your daily goal.',
+        NSHealthUpdateUsageDescription: false,
+        background: false,
+      },
+    ],
+  ],
   experiments: {
     typedRoutes: true,
   },

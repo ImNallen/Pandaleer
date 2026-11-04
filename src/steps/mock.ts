@@ -7,7 +7,11 @@ import type { StepSource } from './types';
 const HOURS_KEY = 'mock.hourly';
 const LEGACY_TOTALS_KEY = 'mock.dailyTotals';
 const ACCESS_KEY = 'mock.accessRequested';
+const SIMULATION_KEY = 'mock.simulation';
 const listeners = new Set<() => void>();
+
+/** Which Apple Health conditions the mock pretends to be in, so their screens can be tried. */
+export type MockSimulation = 'working' | 'unavailable' | 'failing';
 
 /** A typical day: quiet nights, a morning walk, lunch and the commute home. */
 const DAY_CURVE = [0, 0, 0, 0, 0, 0, 1, 4, 8, 5, 4, 5, 9, 6, 4, 4, 5, 9, 8, 6, 4, 2, 1, 0];
@@ -23,10 +27,22 @@ function read(): Hours {
   return Object.fromEntries(Object.entries(totals).map(([date, steps]) => [date, spread(steps, 24)]));
 }
 
+function notify() {
+  listeners.forEach((listener) => listener());
+}
+
 function write(hours: Hours) {
   storage.set(HOURS_KEY, JSON.stringify(hours));
   storage.remove(LEGACY_TOTALS_KEY);
-  listeners.forEach((listener) => listener());
+  notify();
+}
+
+function simulation(): MockSimulation {
+  return (storage.getString(SIMULATION_KEY) as MockSimulation | undefined) ?? 'working';
+}
+
+function failIfSimulated() {
+  if (simulation() === 'failing') throw new Error('Simulated Apple Health failure');
 }
 
 /** Splits `steps` over the hours before `untilHour`, following the day curve, keeping the exact total. */
@@ -54,20 +70,35 @@ export const mockSteps = {
   set(date: LocalDate, steps: number, untilHour = 24) {
     write({ ...read(), [date]: spread(Math.max(0, steps), untilHour) });
   },
+  /** Replaces many days' totals in one write. */
+  setMany(totals: Partial<Record<LocalDate, number>>) {
+    const days = Object.entries(totals).map(([date, steps]) => [date, spread(Math.max(0, steps ?? 0), 24)]);
+    write({ ...read(), ...Object.fromEntries(days) });
+  },
   clear() {
-    write({});
     storage.remove(ACCESS_KEY);
+    storage.remove(SIMULATION_KEY);
+    write({});
+  },
+  simulation,
+  simulate(next: MockSimulation) {
+    storage.set(SIMULATION_KEY, next);
+    notify();
   },
 };
 
 export const mockStepSource: StepSource = {
   kind: 'mock',
-  accessStatus: async () => (storage.getBoolean(ACCESS_KEY) ? 'requested' : 'notDetermined'),
+  async accessStatus() {
+    if (simulation() === 'unavailable') return 'unavailable';
+    return storage.getBoolean(ACCESS_KEY) ? 'requested' : 'notDetermined';
+  },
   async requestAccess() {
     storage.set(ACCESS_KEY, true);
     return 'requested';
   },
   async dailyTotals(from, to) {
+    failIfSimulated();
     const totals: Partial<Record<LocalDate, number>> = {};
     for (const [date, hours] of Object.entries(read()) as [LocalDate, number[]][]) {
       if (date >= from && date <= to) totals[date] = sum(hours);
@@ -75,6 +106,7 @@ export const mockStepSource: StepSource = {
     return totals satisfies DailyTotals;
   },
   async hourlyTotals(date) {
+    failIfSimulated();
     return read()[date] ?? Array<number>(24).fill(0);
   },
   subscribe(onChange) {

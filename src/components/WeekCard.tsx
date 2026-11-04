@@ -10,6 +10,8 @@ import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
 const CAPSULE = { width: 30, height: 64 };
+/** Lets day buttons run past the card's padding: 44pt wide on the narrowest phones, capsules still lined up with the title. */
+const DAYS_OUTSET = 5;
 
 const SPOKEN: Record<WeekDayState, string> = {
   met: 'goal met',
@@ -30,8 +32,10 @@ export function WeekCard({ week }: { week: readonly WeekDay[] }) {
   return (
     <View style={[styles.card, { backgroundColor: theme.blue.faint }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>This week</Text>
-        <Text muted style={styles.detail} accessibilityLiveRegion="polite">
+        <Text variant="heading" accessibilityRole="header">
+          This week
+        </Text>
+        <Text variant="detail" muted style={styles.detail}>
           {picked ? `${weekdayName(picked.date, 'short')} · ${picked.steps.toLocaleString()} steps` : `${met} of ${played} ${played === 1 ? 'day' : 'days'}`}
         </Text>
       </View>
@@ -46,10 +50,11 @@ export function WeekCard({ week }: { week: readonly WeekDay[] }) {
               setSelected((current) => (current === day.date ? null : day.date));
             }}
             accessibilityRole="button"
+            accessibilityState={{ selected: day.date === selected }}
             accessibilityLabel={`${weekdayName(day.date, 'long')}: ${day.steps.toLocaleString()} steps, ${SPOKEN[day.state]}`}
             style={styles.day}>
             <Capsule day={day} index={i} selected={day.date === selected} />
-            <Text style={[styles.letter, { color: day.state === 'today' ? theme.text : theme.textMuted }]} maxFontSizeMultiplier={1.4}>
+            <Text variant="caption" muted={day.state !== 'today'}>
               {weekdayName(day.date, 'narrow')}
             </Text>
           </PressableScale>
@@ -69,15 +74,17 @@ function Capsule({ day, index, selected }: { day: WeekDay; index: number; select
   }, [share, index, fill]);
 
   const level = useAnimatedStyle(() => ({ height: fill.value * CAPSULE.height }));
-  const ring = day.state === 'today' ? theme.blue.strong : selected ? theme.blue.light : 'transparent';
+  const ring = selected ? theme.text : day.state === 'today' ? theme.blue.strong : 'transparent';
+  /** A pale fill alone is hard to tell from its track, so its surface gets a strong line, like the panda's water. */
+  const surface = share > 0 && !day.met ? { borderTopWidth: 2, borderTopColor: theme.blue.strong } : null;
 
   return (
     <View style={[styles.capsuleRing, { borderColor: ring }]}>
       <View style={[styles.capsule, { backgroundColor: theme.blue.soft, opacity: day.state === 'upcoming' ? 0.5 : 1 }]}>
-        <Animated.View style={[styles.fill, { backgroundColor: day.met ? theme.blue.strong : theme.blue.light }, level]} />
+        <Animated.View style={[styles.fill, { backgroundColor: day.met ? theme.blue.strong : theme.blue.light }, surface, level]} />
         {day.state === 'met' && (
           <View style={styles.check}>
-            <SymbolView name="checkmark" size={13} weight="heavy" tintColor="#FFFFFF" />
+            <SymbolView name="checkmark" size={13} weight="heavy" tintColor={theme.onStrong} />
           </View>
         )}
       </View>
@@ -92,14 +99,12 @@ function weekdayName(date: string, width: 'long' | 'short' | 'narrow'): string {
 
 const styles = StyleSheet.create({
   card: { borderRadius: 24, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 12, gap: 12 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  title: { fontSize: 16, fontWeight: '700' },
-  detail: { fontSize: 14, fontWeight: '600' },
-  days: { flexDirection: 'row', justifyContent: 'space-between' },
-  day: { alignItems: 'center', gap: 6 },
+  header: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', columnGap: 12 },
+  detail: { flexShrink: 1 },
+  days: { flexDirection: 'row', marginHorizontal: -DAYS_OUTSET },
+  day: { flex: 1, alignItems: 'center', gap: 6 },
   capsuleRing: { borderWidth: 2, borderRadius: CAPSULE.width / 2 + 4, padding: 2 },
   capsule: { width: CAPSULE.width, height: CAPSULE.height, borderRadius: CAPSULE.width / 2, overflow: 'hidden', justifyContent: 'flex-end' },
   fill: { width: '100%', borderRadius: CAPSULE.width / 2 },
   check: { position: 'absolute', top: 8, left: 0, right: 0, alignItems: 'center' },
-  letter: { fontSize: 13, fontWeight: '700' },
 });
