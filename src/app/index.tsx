@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { router, useIsFocused } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, AppState, StyleSheet, useWindowDimensions, View, type LayoutChangeEvent } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, AppState, ScrollView, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,8 +27,6 @@ import { PressableScale } from '@/ui/PressableScale';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
-/** The day card only earns its place when the panda still gets this much room. */
-const ROOMY_HEIGHT = 800;
 const enter = (order: number) => FadeInDown.delay(order * 90).duration(500).springify().damping(18);
 const CELEBRATION_MS = 3500;
 /** Answers quicker than this never show a spinner, so a normal launch doesn't flicker. */
@@ -94,7 +92,6 @@ function Loading() {
 
 function HomeContent({ game, hasSteps }: { game: GameState; hasSteps: boolean }) {
   const insets = useSafeAreaInsets();
-  const { height: screenHeight } = useWindowDimensions();
   const hours = useHourlySteps(game.today.date);
   const [stage, setStage] = useState({ width: 0, height: 0 });
   const [readyPose, setReadyPose] = useState<PandaPose | null>(null);
@@ -103,25 +100,29 @@ function HomeContent({ game, hasSteps }: { game: GameState; hasSteps: boolean })
   const pandaSize = Math.min(stage.width, stage.height);
 
   return (
-    <View style={[styles.flex, styles.screen, { paddingTop: insets.top + 4, paddingBottom: insets.bottom + 8 }]}>
-      <Animated.View entering={enter(0)}>
-        <Header streak={game.streak} progress={game.today.steps / game.today.goal} />
-      </Animated.View>
-      <Animated.View entering={enter(1)} style={styles.count}>
-        <StepCount steps={game.today.steps} goal={game.today.goal} />
-        {!hasSteps && stepSource.kind === 'healthkit' && <HealthAccessHint />}
-      </Animated.View>
-      <Animated.View entering={FadeIn.delay(200).duration(700)} style={styles.stage} onLayout={(event: LayoutChangeEvent) => setStage(event.nativeEvent.layout)}>
-        {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} animated={visible} onPoseReady={setReadyPose} />}
-      </Animated.View>
-      <Animated.View entering={enter(3)}>
-        <WeekCard week={game.week} />
-      </Animated.View>
-      {hours && screenHeight >= ROOMY_HEIGHT && (
-        <Animated.View entering={enter(4)} style={styles.dayCard}>
-          <DayCard hours={hours} currentHour={new Date().getHours()} />
+    <View style={styles.flex}>
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[styles.screen, { paddingTop: insets.top + 4, paddingBottom: insets.bottom + 8 }]}>
+        <Animated.View entering={enter(0)}>
+          <Header streak={game.streak} progress={game.today.steps / game.today.goal} />
         </Animated.View>
-      )}
+        <Animated.View entering={enter(1)} style={styles.count}>
+          <StepCount steps={game.today.steps} goal={game.today.goal} />
+          {!hasSteps && stepSource.kind === 'healthkit' && <HealthAccessHint />}
+        </Animated.View>
+        <Animated.View entering={FadeIn.delay(200).duration(700)} style={styles.stage} onLayout={(event: LayoutChangeEvent) => setStage(event.nativeEvent.layout)}>
+          {pandaSize > 0 && <PandaFill progress={game.today.steps / game.today.goal} size={pandaSize} animated={visible} onPoseReady={setReadyPose} />}
+        </Animated.View>
+        <Animated.View entering={enter(3)}>
+          <WeekCard week={game.week} />
+        </Animated.View>
+        {hours && (
+          <Animated.View entering={enter(4)} style={styles.dayCard}>
+            <DayCard hours={hours} currentHour={new Date().getHours()} />
+          </Animated.View>
+        )}
+      </ScrollView>
       {celebrating && <Confetti />}
     </View>
   );
@@ -193,13 +194,13 @@ function useGoalCelebration(game: GameState, visible: boolean, artworkReady: boo
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   centered: { alignItems: 'center', justifyContent: 'center' },
-  screen: { paddingHorizontal: 20 },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 48 },
-  settings: { width: 44, height: 44, marginRight: -4, alignItems: 'center', justifyContent: 'center' },
+  screen: { flexGrow: 1, paddingHorizontal: 20 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 12 },
+  settings: { flexShrink: 0, width: 44, height: 44, marginRight: -4, alignItems: 'center', justifyContent: 'center' },
   settingsCircle: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   count: { marginTop: -2 },
   hint: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   hintLabel: { textAlign: 'center' },
-  stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  stage: { flexGrow: 1, minHeight: 240, alignItems: 'center', justifyContent: 'center' },
   dayCard: { marginTop: 12 },
 });

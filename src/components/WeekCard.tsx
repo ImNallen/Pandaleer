@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
 import type { WeekDay, WeekDayState } from '@/game/game';
@@ -10,7 +10,6 @@ import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
 const CAPSULE = { width: 30, height: 64 };
-/** Lets day buttons run past the card's padding: 44pt wide on the narrowest phones, capsules still lined up with the title. */
 const DAYS_OUTSET = 5;
 
 const SPOKEN: Record<WeekDayState, string> = {
@@ -24,9 +23,9 @@ const SPOKEN: Record<WeekDayState, string> = {
 /** This week as seven capsules that fill with each day's progress. Tap one to see its steps. */
 export function WeekCard({ week }: { week: readonly WeekDay[] }) {
   const theme = useTheme();
+  const { fontScale } = useWindowDimensions();
   const [selected, setSelected] = useState<string | null>(null);
   const met = week.filter((day) => day.state === 'met').length;
-  const played = week.filter((day) => day.state !== 'upcoming' && day.state !== 'unknown').length;
   const picked = week.find((day) => day.date === selected);
 
   return (
@@ -36,7 +35,7 @@ export function WeekCard({ week }: { week: readonly WeekDay[] }) {
           This week
         </Text>
         <Text variant="detail" muted style={styles.detail}>
-          {picked ? `${weekdayName(picked.date, 'short')} · ${picked.steps.toLocaleString()} steps` : `${met} of ${played} ${played === 1 ? 'day' : 'days'}`}
+          {met} {met === 1 ? 'goal' : 'goals'} met
         </Text>
       </View>
       <View style={styles.days}>
@@ -50,18 +49,25 @@ export function WeekCard({ week }: { week: readonly WeekDay[] }) {
               setSelected((current) => (current === day.date ? null : day.date));
             }}
             accessibilityRole="button"
-            accessibilityState={{ selected: day.date === selected }}
-            accessibilityLabel={`${weekdayName(day.date, 'long')}: ${day.steps.toLocaleString()} steps, ${SPOKEN[day.state]}`}
-            style={styles.day}>
+            accessibilityState={{ selected: day.date === selected, disabled: day.state === 'upcoming' }}
+            accessibilityLabel={dayDescription(day)}
+            style={[styles.day, { minWidth: 44 * Math.min(fontScale, 1.4) }]}>
             <Capsule day={day} index={i} selected={day.date === selected} />
-            <Text variant="caption" muted={day.state !== 'today'}>
-              {weekdayName(day.date, 'narrow')}
+            <Text variant="caption" muted={day.state !== 'today'} style={styles.weekday}>
+              {weekdayName(day.date, 'short')}
             </Text>
           </PressableScale>
         ))}
       </View>
+      {picked && <Text variant="detail" style={styles.selection}>{dayDescription(picked)}</Text>}
     </View>
   );
+}
+
+function dayDescription(day: WeekDay): string {
+  const weekday = weekdayName(day.date, 'long');
+  if (day.state === 'unknown') return `${weekday} · ${SPOKEN[day.state]}`;
+  return `${weekday} · ${day.steps.toLocaleString()} steps · goal ${day.goal.toLocaleString()} steps · ${SPOKEN[day.state]}`;
 }
 
 function Capsule({ day, index, selected }: { day: WeekDay; index: number; selected: boolean }) {
@@ -92,7 +98,7 @@ function Capsule({ day, index, selected }: { day: WeekDay; index: number; select
   );
 }
 
-function weekdayName(date: string, width: 'long' | 'short' | 'narrow'): string {
+function weekdayName(date: string, width: 'long' | 'short'): string {
   const [year, month, day] = date.split('-').map(Number);
   return new Date(year, month - 1, day).toLocaleDateString(undefined, { weekday: width });
 }
@@ -101,8 +107,10 @@ const styles = StyleSheet.create({
   card: { borderRadius: 24, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 12, gap: 12 },
   header: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', columnGap: 12 },
   detail: { flexShrink: 1 },
-  days: { flexDirection: 'row', marginHorizontal: -DAYS_OUTSET },
-  day: { flex: 1, alignItems: 'center', gap: 6 },
+  days: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 12, marginHorizontal: -DAYS_OUTSET },
+  day: { flexBasis: '14.285714%', flexGrow: 1, alignItems: 'center', gap: 6 },
+  weekday: { textAlign: 'center', alignSelf: 'stretch' },
+  selection: { flexShrink: 1 },
   capsuleRing: { borderWidth: 2, borderRadius: CAPSULE.width / 2 + 4, padding: 2 },
   capsule: { width: CAPSULE.width, height: CAPSULE.height, borderRadius: CAPSULE.width / 2, overflow: 'hidden', justifyContent: 'flex-end' },
   fill: { width: '100%', borderRadius: CAPSULE.width / 2 },
