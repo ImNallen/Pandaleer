@@ -21,9 +21,7 @@ export function StepCount({ steps, goal }: { steps: number; goal: number }) {
           {shown.toLocaleString()}
         </Text>
       </View>
-      <Text variant="label" style={styles.centered}>of {goal.toLocaleString()} steps today</Text>
-      <Text variant="detail" style={styles.centered}>{status}</Text>
-      <Text variant="caption" muted style={styles.centered}>{percent}% of your goal</Text>
+      <Text variant="detail" muted style={styles.centered}>{status}</Text>
     </View>
   );
 }
