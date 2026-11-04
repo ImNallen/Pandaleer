@@ -9,6 +9,17 @@ export function parseLocalDate(value: string): LocalDate {
   return value as LocalDate;
 }
 
+export function localDateOf(instant: Date): LocalDate {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${instant.getFullYear()}-${pad(instant.getMonth() + 1)}-${pad(instant.getDate())}` as LocalDate;
+}
+
+/** The instant this calendar day begins in the device's current time zone. */
+export function localMidnight(date: LocalDate): Date {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export function addDays(date: LocalDate, days: number): LocalDate {
   const utc = toUtc(date);
   utc.setUTCDate(utc.getUTCDate() + days);

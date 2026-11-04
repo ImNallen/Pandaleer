@@ -8,11 +8,9 @@ import { useTheme } from '@/ui/tokens';
 const BAR_HEIGHT = 56;
 /** Two hours per bar keeps the day readable at a glance. */
 const HOURS_PER_BAR = 2;
-const LABELS = [
-  { bar: 3, text: '6 AM' },
-  { bar: 6, text: '12 PM' },
-  { bar: 9, text: '6 PM' },
-] as const;
+/** 6:00, noon and 18:00, written the way this device writes times. */
+const LABEL_HOURS = [6, 12, 18];
+const LABEL_WIDTH = 80;
 
 /** When today's walking happened. */
 export function DayCard({ hours, currentHour }: { hours: readonly number[]; currentHour: number }) {
@@ -27,17 +25,19 @@ export function DayCard({ hours, currentHour }: { hours: readonly number[]; curr
       style={[styles.card, { backgroundColor: theme.green.faint }]}
       accessible
       accessibilityLabel={bars[busiest] > 0 ? `Your day: you walked most around ${hourName(busiest * HOURS_PER_BAR)}.` : 'Your day: no steps yet.'}>
-      <Text style={styles.title}>Your day</Text>
+      <Text variant="heading">Your day</Text>
       <View style={styles.bars}>
         {bars.map((steps, i) => (
           <Bar key={i} index={i} share={i > currentBar ? 0 : steps / peak} current={i === currentBar} />
         ))}
       </View>
       <View style={styles.labels}>
-        {LABELS.map(({ bar, text }) => (
-          <Text key={text} muted style={[styles.label, { left: `${(bar / bars.length) * 100}%` }]} maxFontSizeMultiplier={1.3}>
-            {text}
-          </Text>
+        {LABEL_HOURS.map((hour) => (
+          <View key={hour} style={[styles.label, { left: `${(hour / 24) * 100}%` }]}>
+            <Text variant="caption" muted numberOfLines={1} maxFontSizeMultiplier={1.3}>
+              {hourName(hour)}
+            </Text>
+          </View>
         ))}
       </View>
     </View>
@@ -66,10 +66,9 @@ function hourName(hour: number): string {
 
 const styles = StyleSheet.create({
   card: { borderRadius: 24, paddingHorizontal: 18, paddingTop: 14, paddingBottom: 10, gap: 10 },
-  title: { fontSize: 16, fontWeight: '700' },
   bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 6, height: BAR_HEIGHT },
   slot: { flex: 1, justifyContent: 'flex-end', height: '100%' },
   bar: { borderRadius: 6 },
   labels: { height: 16 },
-  label: { position: 'absolute', fontSize: 12, fontWeight: '600', transform: [{ translateX: -14 }] },
+  label: { position: 'absolute', width: LABEL_WIDTH, marginLeft: -LABEL_WIDTH / 2, alignItems: 'center' },
 });

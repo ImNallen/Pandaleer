@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
-import { addDays, type LocalDate } from '@/game/date';
+import { addDays, localDateOf, type LocalDate } from '@/game/date';
 import { useDev } from '@/state/dev';
-
-export function localDateOf(instant: Date): LocalDate {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${instant.getFullYear()}-${pad(instant.getMonth() + 1)}-${pad(instant.getDate())}` as LocalDate;
-}
 
 /** The local calendar date, updated at midnight and whenever the app returns to the foreground. */
 export function useToday(): LocalDate {

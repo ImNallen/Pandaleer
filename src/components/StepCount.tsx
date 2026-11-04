@@ -16,13 +16,11 @@ export function StepCount({ steps, goal }: { steps: number; goal: number }) {
     <View style={styles.container} accessible accessibilityLabel={`${steps.toLocaleString()} steps, ${percent}% of your goal of ${goal.toLocaleString()}`}>
       <View style={styles.row}>
         <SymbolView name="shoeprints.fill" size={26} tintColor={theme.blue.strong} style={styles.icon} />
-        <Text style={[styles.steps, { color: theme.blue.strong }]} maxFontSizeMultiplier={1.25}>
+        <Text variant="hero" style={{ color: theme.blue.strong }} maxFontSizeMultiplier={1.25}>
           {shown.toLocaleString()}
         </Text>
       </View>
-      <Text style={styles.percent} maxFontSizeMultiplier={1.5}>
-        {percent}% of your goal
-      </Text>
+      <Text variant="label">{percent}% of your goal</Text>
     </View>
   );
 }
@@ -57,6 +55,4 @@ const styles = StyleSheet.create({
   container: { alignItems: 'center', gap: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   icon: { width: 26, height: 26 },
-  steps: { fontSize: 40, fontWeight: '800', letterSpacing: -0.8, fontVariant: ['tabular-nums'] },
-  percent: { fontSize: 15, fontWeight: '600' },
 });

@@ -46,7 +46,13 @@ export function StreakBadge({ streak, progress }: Props) {
         <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} style="stroke" strokeWidth={STROKE} color={theme.blue.soft} />
         <Path path={ARC} style="stroke" strokeWidth={STROKE} strokeCap="round" color={theme.blue.strong} start={0} end={arc} />
       </Canvas>
-      <Text style={styles.count} maxFontSizeMultiplier={1.2}>
+      <Text
+        variant="label"
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.6}
+        style={[styles.count, { color: theme.onLight }]}
+        maxFontSizeMultiplier={1.2}>
         {streak}
       </Text>
     </Animated.View>
@@ -60,5 +66,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  count: { color: '#FFFFFF', fontSize: 15, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  count: { width: SIZE - 2 * STROKE, textAlign: 'center', fontWeight: '900', fontVariant: ['tabular-nums'] },
 });

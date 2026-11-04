@@ -22,10 +22,10 @@ function layoutForBounds(x: number, y: number, width: number, height: number): L
 }
 
 const ARTWORK = {
-  wave: { source: require('../../../assets/mascot/red-panda-concept-v1.png'), layout: { x: 20, y: 12, width: 200, height: 212 } },
-  walk: { source: require('../../../assets/mascot/red-panda-walking.png'), layout: layoutForBounds(104, 58, 952, 1124) },
-  brisk: { source: require('../../../assets/mascot/red-panda-brisk.png'), layout: layoutForBounds(54, 56, 1078, 1124) },
-  celebrate: { source: require('../../../assets/mascot/red-panda-celebration.png'), layout: layoutForBounds(80, 44, 1056, 1156) },
+  wave: { source: require('../../../assets/mascot/red-panda-concept-v1.webp'), layout: { x: 20, y: 12, width: 200, height: 212 } },
+  walk: { source: require('../../../assets/mascot/red-panda-walking.webp'), layout: layoutForBounds(104, 58, 952, 1124) },
+  brisk: { source: require('../../../assets/mascot/red-panda-brisk.webp'), layout: layoutForBounds(54, 56, 1078, 1124) },
+  celebrate: { source: require('../../../assets/mascot/red-panda-celebration.webp'), layout: layoutForBounds(80, 44, 1056, 1156) },
 } satisfies Record<PandaPose, Artwork>;
 
 type RGB = [number, number, number];
