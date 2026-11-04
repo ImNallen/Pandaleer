@@ -1,6 +1,6 @@
 import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
 import { Text } from '@/ui/Text';
@@ -34,33 +34,39 @@ export function StreakBadge({ streak, progress }: Props) {
   }, [share, arc]);
 
   const pop = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  const days = streak === 1 ? '1-day streak' : `${streak}-day streak`;
+  const days = streak === 0 ? 'Start your streak' : `${streak}-day streak`;
 
   return (
-    <Animated.View
+    <View
       accessible
       accessibilityLabel={`${days}. Today ${Math.floor(share * 100)}% of your goal.`}
-      style={[styles.badge, pop]}>
-      <Canvas style={StyleSheet.absoluteFill}>
-        <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} color={theme.blue.light} />
-        <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} style="stroke" strokeWidth={STROKE} color={theme.blue.soft} />
-        <Path path={ARC} style="stroke" strokeWidth={STROKE} strokeCap="round" color={theme.blue.strong} start={0} end={arc} />
-      </Canvas>
-      <Text
-        variant="label"
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={0.6}
-        style={[styles.count, { color: theme.onLight }]}
-        maxFontSizeMultiplier={1.2}>
-        {streak}
-      </Text>
-    </Animated.View>
+      style={styles.row}>
+      <Animated.View style={[styles.badge, pop]}>
+        <Canvas style={StyleSheet.absoluteFill}>
+          <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} color={theme.blue.light} />
+          <Circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} style="stroke" strokeWidth={STROKE} color={theme.blue.soft} />
+          <Path path={ARC} style="stroke" strokeWidth={STROKE} strokeCap="round" color={theme.blue.strong} start={0} end={arc} />
+        </Canvas>
+        <Text
+          variant="label"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.6}
+          style={[styles.count, { color: theme.onLight }]}
+          maxFontSizeMultiplier={1.2}>
+          {streak}
+        </Text>
+      </Animated.View>
+      <Text variant="label" style={styles.label}>{days}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
+  label: { flexShrink: 1 },
   badge: {
+    flexShrink: 0,
     width: SIZE,
     height: SIZE,
     alignItems: 'center',

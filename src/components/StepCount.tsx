@@ -7,20 +7,21 @@ import { SymbolView } from 'expo-symbols';
 import { Text } from '@/ui/Text';
 import { useTheme } from '@/ui/tokens';
 
-/** Today's steps counting up to new totals, with the share of the goal underneath. */
 export function StepCount({ steps, goal }: { steps: number; goal: number }) {
   const theme = useTheme();
   const shown = useCountUp(steps);
   const percent = Math.floor((steps / goal) * 100);
+  const remaining = Math.max(0, goal - steps);
+  const status = remaining === 0 ? 'Goal reached' : `${remaining.toLocaleString()} steps to go`;
   return (
-    <View style={styles.container} accessible accessibilityLabel={`${steps.toLocaleString()} steps, ${percent}% of your goal of ${goal.toLocaleString()}`}>
+    <View style={styles.container} accessible accessibilityLabel={`${steps.toLocaleString()} steps today, goal ${goal.toLocaleString()} steps, ${status.toLowerCase()}, ${percent}% of your goal`}>
       <View style={styles.row}>
         <SymbolView name="shoeprints.fill" size={26} tintColor={theme.blue.strong} style={styles.icon} />
         <Text variant="hero" style={{ color: theme.blue.strong }} maxFontSizeMultiplier={1.25}>
           {shown.toLocaleString()}
         </Text>
       </View>
-      <Text variant="label">{percent}% of your goal</Text>
+      <Text variant="detail" muted style={styles.centered}>{status}</Text>
     </View>
   );
 }
@@ -52,7 +53,8 @@ function useCountUp(target: number): number {
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', gap: 0 },
+  container: { alignItems: 'center', gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  centered: { textAlign: 'center' },
   icon: { width: 26, height: 26 },
 });
