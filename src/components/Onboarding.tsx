@@ -30,21 +30,17 @@ export function Onboarding({ initialGoal, status, onContinue }: Props) {
           <PandaFill progress={0.35} size={pandaSize} animated />
         </View>
         <Text variant="title" accessibilityRole="header" style={styles.centered}>Walk to fill your panda</Text>
-        <Text muted style={styles.centered}>Your steps fill your panda each day. Reach your daily goal to keep your streak going.</Text>
-        <View style={styles.goalSection}>
-          <DailyGoalPicker value={goal} onChange={setGoal} disabled={requesting} />
-          <Text variant="detail" muted style={styles.centered}>You can change your goal anytime in Settings.</Text>
-        </View>
-        <View style={styles.health}>
-          <Text variant="heading" style={styles.centered}>Your steps from Apple Health</Text>
-          <Text muted style={styles.centered}>Pandaleer only requests your step count. You choose what to share in Apple Health.</Text>
-        </View>
+        <Text muted style={styles.centered}>Reach your goal to grow your streak.</Text>
+        <DailyGoalPicker value={goal} onChange={setGoal} disabled={requesting} />
         {status === 'requestFailed' && (
           <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.centered}>
             Couldn&apos;t open Apple Health. Try again in a moment.
           </Text>
         )}
       </ScrollView>
+      <Text variant="detail" muted style={styles.centered}>
+        Only your step count. You choose what to share.
+      </Text>
       <PressableScale
         accessibilityRole="button"
         accessibilityState={{ disabled: requesting, busy: requesting }}
@@ -66,8 +62,6 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, justifyContent: 'center', gap: 16, paddingBottom: 8 },
   artwork: { alignItems: 'center' },
   centered: { textAlign: 'center' },
-  goalSection: { gap: 8 },
-  health: { gap: 8 },
   button: { minHeight: 54, borderRadius: 27, paddingHorizontal: 24, paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
   buttonLabel: { fontWeight: '700', textAlign: 'center' },
 });
