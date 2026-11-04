@@ -9,13 +9,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { PandaPose } from '@/art/skia/pandaPose';
 import { Confetti } from '@/components/Confetti';
 import { DayCard } from '@/components/DayCard';
+import { Onboarding } from '@/components/Onboarding';
 import { PandaFill } from '@/components/PandaFill';
 import { PandaMessage } from '@/components/PandaMessage';
 import { StepCount } from '@/components/StepCount';
 import { StreakBadge } from '@/components/StreakBadge';
 import { WeekCard } from '@/components/WeekCard';
 import { shouldCelebrateGoal } from '@/game/celebration';
-import type { GameState } from '@/game/game';
+import { goalOn, type GameState } from '@/game/game';
 import { useCelebrations } from '@/state/celebrations';
 import { DEFAULT_GOAL, useSettings } from '@/state/settings';
 import { useGame, useHourlySteps } from '@/state/useGame';
@@ -37,6 +38,8 @@ export default function Home() {
   const theme = useTheme();
   const today = useToday();
   const begin = useSettings((state) => state.begin);
+  const goalHistory = useSettings((state) => state.goalHistory);
+  const setGoal = useSettings((state) => state.setGoal);
   const { access, check, request } = useHealthAccess();
 
   useEffect(() => begin(today, DEFAULT_GOAL), [begin, today]);
@@ -44,12 +47,14 @@ export default function Home() {
   return (
     <View style={[styles.flex, { backgroundColor: theme.background }]}>
       {access === 'requested' && <Tracker />}
-      {access === 'notDetermined' && (
-        <PandaMessage
-          title="Walk to fill your panda"
-          body="Pandaleer reads your step count from Apple Health. That's all it needs to track your goal and streak."
-          fill={0.2}
-          action={{ label: 'Continue', onPress: request }}
+      {(access === 'notDetermined' || access === 'requesting' || access === 'requestFailed') && (
+        <Onboarding
+          initialGoal={goalHistory ? goalOn(goalHistory, today) : DEFAULT_GOAL}
+          status={access}
+          onContinue={(goal) => {
+            setGoal(today, goal);
+            request();
+          }}
         />
       )}
       {access === 'unavailable' && (
